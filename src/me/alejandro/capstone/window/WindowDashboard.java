@@ -1,5 +1,7 @@
 package me.alejandro.capstone.window;
 
+import me.alejandro.capstone.render.GraphicsWrapper;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,22 +15,23 @@ public class WindowDashboard extends Window {
     int frame;
 
     @Override
-    public void render(Graphics g) {
-        Graphics2D g2D = (Graphics2D) g;
+    public void render(GraphicsWrapper g) {
 
         g.setColor(Color.WHITE);
 
-        int[] xPoints = {
-                cartesianToImgX(-0.2),
-                cartesianToImgX(0.0),
-                cartesianToImgX(0.0)};
+        double[] xPoints = {
+                -0.2,
+                0.0,
+                0.0
+        };
 
-        int[] yPoints = {
-                cartesianToImgY(0),
-                cartesianToImgY(0),
-                cartesianToImgY(0.2)};
+        double[] yPoints = {
+                0.0,
+                Math.sin(0.01 * frame++),
+                0.2
+        };
 
-        g2D.fillPolygon(xPoints, yPoints, 3);
+        g.fillTriangle(xPoints, yPoints);
     }
 
 }

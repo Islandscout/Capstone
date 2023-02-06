@@ -2,6 +2,7 @@ package me.alejandro.capstone.window;
 
 import me.alejandro.capstone.Main;
 import me.alejandro.capstone.input.Input;
+import me.alejandro.capstone.render.GraphicsWrapper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +19,7 @@ public abstract class Window {
 
     public final int width, height;
     private final double aspect;
-    private final int fpsCap = 60;
+    private final int fpsCap = 0;
     private final int tps = 20;
     private final long minDrawTime;
 
@@ -33,7 +34,7 @@ public abstract class Window {
         this.height = height;
         this.aspect = (float) height / width;
 
-        this.background = Color.BLACK;
+        this.background = Color.BLACK; //default
 
         this.frame = new Frame();
         this.canvas = new Canvas();
@@ -60,8 +61,8 @@ public abstract class Window {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
-                VolatileImage vImage = gc.createCompatibleVolatileImage(width, height);
+
+                GraphicsWrapper g = new GraphicsWrapper(canvas);
 
                 long start, lastTickStartTime;
                 start = lastTickStartTime = System.nanoTime();
@@ -70,9 +71,7 @@ public abstract class Window {
 
                 while(!closeRequested) {
 
-                    if(vImage.validate(gc) == VolatileImage.IMAGE_INCOMPATIBLE) {
-                        vImage = gc.createCompatibleVolatileImage(width, height);
-                    }
+                    g.validate();
 
                     //TODO poll inputs
 
@@ -97,11 +96,10 @@ public abstract class Window {
 
                     float partialTick = (float)sinceLastTick / tickIntervalTime;
 
-                    Graphics g = vImage.getGraphics();
                     drawBackground(g);
                     render(g);
 
-                    updateScreen(vImage, g);
+                    g.flush();
 
                     //Frame rate regulation
                     long drawTime = System.nanoTime() - start;
@@ -126,22 +124,15 @@ public abstract class Window {
     }
 
 
-    protected abstract void render(Graphics g);
+    protected abstract void render(GraphicsWrapper g);
 
     public void setBackground(Color background) {
         this.background = background;
     }
 
-    private void drawBackground(Graphics g) {
+    private void drawBackground(GraphicsWrapper g) {
         g.setColor(background);
-        g.fillRect(0, 0, width, height);
-    }
-
-    private void updateScreen(VolatileImage vImage, Graphics g) {
-        g.dispose();
-        g = canvas.getGraphics();
-        g.drawImage(vImage, 0, 0, width, height, null);
-        g.dispose();
+        g.fillScreen();
     }
 
     protected double imgToCartesianX(double x) {
