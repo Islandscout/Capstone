@@ -19,6 +19,7 @@ public abstract class Window {
     public final int width, height;
     private final double aspect;
     private final int fpsCap = 60;
+    private final int tps = 20;
     private final long minDrawTime;
 
     private boolean closeRequested;
@@ -62,13 +63,39 @@ public abstract class Window {
                 GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
                 VolatileImage vImage = gc.createCompatibleVolatileImage(width, height);
 
-                long start = System.nanoTime();
+                long start, lastTickStartTime;
+                start = lastTickStartTime = System.nanoTime();
+
+                long tickIntervalTime = 1000000000 / tps;
 
                 while(!closeRequested) {
 
                     if(vImage.validate(gc) == VolatileImage.IMAGE_INCOMPATIBLE) {
                         vImage = gc.createCompatibleVolatileImage(width, height);
                     }
+
+                    //TODO poll inputs
+
+                    //ticking
+                    long sinceLastTick = Math.min(System.nanoTime() - lastTickStartTime, 1000000000); //cap max catchup time to 1 second
+                    if(sinceLastTick > tickIntervalTime) {
+
+                        int ticks = (int)(sinceLastTick / tickIntervalTime);
+                        int remainderTime = (int)(sinceLastTick % tickIntervalTime);
+
+                        for(int i = 0; i < ticks; i++) {
+
+                            if(i + 1 == ticks) {
+                                lastTickStartTime = System.nanoTime() - remainderTime;
+                            }
+
+                            //TODO tick window elements
+                        }
+
+                        sinceLastTick = remainderTime;
+                    }
+
+                    float partialTick = (float)sinceLastTick / tickIntervalTime;
 
                     Graphics g = vImage.getGraphics();
                     drawBackground(g);
