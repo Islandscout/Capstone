@@ -1,6 +1,7 @@
 package me.alejandro.capstone.window;
 
 import me.alejandro.capstone.input.Input;
+import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
 
 import java.awt.*;
@@ -8,7 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
-public abstract class Window {
+public abstract class Window implements Drawable {
 
     private Frame frame;
     private Canvas canvas;
@@ -97,7 +98,7 @@ public abstract class Window {
                     double partialTick = (double)sinceLastTick / tickIntervalTime;
 
                     drawBackground(g);
-                    render(g, partialTick);
+                    draw(g, partialTick);
 
                     g.flush();
 
@@ -123,8 +124,6 @@ public abstract class Window {
         thread.setName("Render thread (" + name + ")");
         thread.start();
     }
-
-    protected abstract void render(GraphicsWrapper g, double partialTick);
 
     protected abstract void tick();
 

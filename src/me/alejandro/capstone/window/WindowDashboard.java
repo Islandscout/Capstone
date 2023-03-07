@@ -5,6 +5,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortPacketListener;
 import me.alejandro.capstone.render.GraphicsWrapper;
+import me.alejandro.capstone.util.Vector3D;
 import me.alejandro.capstone.window.element.Tachometer;
 
 import javax.imageio.ImageIO;
@@ -65,32 +66,19 @@ public class WindowDashboard extends Window {
         this.arduino.getSerialPort().addDataListener(this.listener);
     }
 
-    int frame;
-
     @Override
-    public void render(GraphicsWrapper g, double partialTick) {
+    public void draw(GraphicsWrapper g, double partialTick) {
 
-        tach.draw(g);
+        tach.draw(g, partialTick);
 
         g.setColor(Color.RED);
-
-        double[] xPoints = {
-                -0.2,
-                Math.cos(0.01 * frame++),
-                0.0
-        };
-
-        double[] yPoints = {
-                0.0,
-                Math.sin(0.01 * frame++),
-                0.2
-        };
-
-        g.fillTriangle(xPoints, yPoints);
     }
 
     @Override
     public void tick() {
+
+        tach.getModel().getTransformation().rotate(new Vector3D(0, 0, 1), 0.1);
+        tach.getModel().getTransformation().rotate(new Vector3D(0, 1, 0), 0.3);
 
     }
 
