@@ -5,9 +5,13 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortPacketListener;
 import me.alejandro.capstone.render.GraphicsWrapper;
+import me.alejandro.capstone.window.element.Tachometer;
 
-import javax.swing.*;
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class WindowDashboard extends Window {
 
@@ -15,10 +19,29 @@ public class WindowDashboard extends Window {
     private Arduino arduino;
     private ArduinoListener listener;
 
+    //Window elements go here
+    private Tachometer tach;
+
     public WindowDashboard() {
         super("dashboard", 600, 400);
-        this.setBackground(Color.BLACK);
 
+        this.tach = new Tachometer();
+        this.tach.posX = -0.6;
+
+        BufferedImage bg = null;
+        try {
+            bg = ImageIO.read(new File("res/bg.png"));
+        } catch (IOException e) {
+            System.out.println("Could not load background texture! Is it missing in the JAR?");
+            e.printStackTrace();
+        }
+
+        this.setBackground(bg);
+        //TODO use a "check engine light" as app icon
+        this.setTitle("Engine Dynamometer Interface");
+    }
+
+    public void initArduino() {
         SerialPort[] ports = SerialPort.getCommPorts();
 
         //TODO Allow user to choose a port
@@ -29,6 +52,10 @@ public class WindowDashboard extends Window {
 
         }
 
+        if(ports.length == 0) {
+            System.out.println("No ports found, try again?");
+        }
+
         //debug
         System.out.println("success? " + this.arduino.getSerialPort().isOpen());
 
@@ -36,7 +63,6 @@ public class WindowDashboard extends Window {
         // Of course we need to sync these threads up.
         this.listener = new ArduinoListener();
         this.arduino.getSerialPort().addDataListener(this.listener);
-
     }
 
     int frame;
@@ -44,7 +70,9 @@ public class WindowDashboard extends Window {
     @Override
     public void render(GraphicsWrapper g, double partialTick) {
 
-        g.setColor(Color.WHITE);
+        tach.draw(g);
+
+        g.setColor(Color.RED);
 
         double[] xPoints = {
                 -0.2,
@@ -68,8 +96,10 @@ public class WindowDashboard extends Window {
 
     @Override
     protected void onClose() {
-        this.arduino.getSerialPort().removeDataListener();
-        this.arduino.closeConnection();
+        if(this.arduino != null && this.arduino.getSerialPort() != null) {
+            this.arduino.getSerialPort().removeDataListener();
+            this.arduino.closeConnection();
+        }
     }
 
     class ArduinoListener implements SerialPortPacketListener {

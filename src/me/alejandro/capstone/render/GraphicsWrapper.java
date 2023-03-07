@@ -1,6 +1,7 @@
 package me.alejandro.capstone.render;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
 public class GraphicsWrapper {
@@ -27,8 +28,20 @@ public class GraphicsWrapper {
     }
 
     public void fillScreen() {
-
         this.graphics.fillRect(0, 0, this.width, this.height);
+    }
+
+    public void drawImage(BufferedImage img) {
+        this.graphics.drawImage(img, 0, 0, img.getWidth(), img.getHeight(), null);
+    }
+
+    public void drawImage(BufferedImage img, double x, double y) {
+        this.graphics.drawImage(img,
+                cartesianToImgX(x) - (img.getWidth() / 2),
+                cartesianToImgY(y) - (img.getHeight() / 2),
+                img.getWidth(),
+                img.getHeight(),
+                null);
     }
 
     public void flush() {

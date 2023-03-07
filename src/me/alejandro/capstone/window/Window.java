@@ -1,22 +1,20 @@
 package me.alejandro.capstone.window;
 
-import arduino.Arduino;
-import me.alejandro.capstone.Main;
 import me.alejandro.capstone.input.Input;
 import me.alejandro.capstone.render.GraphicsWrapper;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.VolatileImage;
+import java.awt.image.BufferedImage;
 
 public abstract class Window {
 
     private Frame frame;
     private Canvas canvas;
 
-    private Color background;
+    private Color fallbackBg;
+    private BufferedImage bg;
 
     public final int width, height;
     private final double aspect;
@@ -35,7 +33,7 @@ public abstract class Window {
         this.height = height;
         this.aspect = (float) height / width;
 
-        this.background = Color.BLACK; //default
+        this.fallbackBg = Color.BLACK; //default
 
         this.frame = new Frame();
         this.canvas = new Canvas();
@@ -44,6 +42,7 @@ public abstract class Window {
         this.frame.add(canvas);
 
         this.frame.pack();
+        this.frame.setName(name);
         this.frame.setResizable(false);
         this.frame.setLocationRelativeTo(null);
         this.frame.addWindowListener(new WindowAdapter() {
@@ -129,13 +128,26 @@ public abstract class Window {
 
     protected abstract void tick();
 
-    public void setBackground(Color background) {
-        this.background = background;
+    protected void setTitle(String title) {
+        this.frame.setTitle(title);
+    }
+
+    public void setFallbackBg(Color fallbackBg) {
+        this.fallbackBg = fallbackBg;
+    }
+
+    public void setBackground(BufferedImage img) {
+        this.bg = img;
     }
 
     private void drawBackground(GraphicsWrapper g) {
-        g.setColor(background);
-        g.fillScreen();
+        if(this.bg == null) { //fallback to solid color
+            g.setColor(fallbackBg);
+            g.fillScreen();
+        }
+        else {
+           g.drawImage(bg);
+        }
     }
 
     protected abstract void onClose();

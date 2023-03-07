@@ -9,7 +9,7 @@ import java.awt.*;
 /**
  * Represents a 3D model
  */
-public class RawModel implements Drawable {
+public class PolygonalModel implements Drawable {
 
     private Vector3D[] vertices;
     private int[] indices;
@@ -20,7 +20,7 @@ public class RawModel implements Drawable {
 
     private Matrix4D transformation;
 
-    public RawModel(Vector3D[] vertices, int[] indices, Vector3D[] normals) {
+    public PolygonalModel(Vector3D[] vertices, int[] indices, Vector3D[] normals) {
         this.vertices = vertices;
         this.indices = indices;
         this.normals = normals;
