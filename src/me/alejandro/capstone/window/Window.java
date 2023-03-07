@@ -1,5 +1,6 @@
 package me.alejandro.capstone.window;
 
+import arduino.Arduino;
 import me.alejandro.capstone.Main;
 import me.alejandro.capstone.input.Input;
 import me.alejandro.capstone.render.GraphicsWrapper;
@@ -19,7 +20,7 @@ public abstract class Window {
 
     public final int width, height;
     private final double aspect;
-    private final int fpsCap = 0;
+    private final int fpsCap = 60;
     private final int tps = 20;
     private final long minDrawTime;
 
@@ -88,16 +89,16 @@ public abstract class Window {
                                 lastTickStartTime = System.nanoTime() - remainderTime;
                             }
 
-                            //TODO tick window elements
+                            tick();
                         }
 
                         sinceLastTick = remainderTime;
                     }
 
-                    float partialTick = (float)sinceLastTick / tickIntervalTime;
+                    double partialTick = (double)sinceLastTick / tickIntervalTime;
 
                     drawBackground(g);
-                    render(g);
+                    render(g, partialTick);
 
                     g.flush();
 
@@ -117,14 +118,16 @@ public abstract class Window {
 
                 //cleanup
                 frame.dispose();
+                onClose();
             }
         });
         thread.setName("Render thread (" + name + ")");
         thread.start();
     }
 
+    protected abstract void render(GraphicsWrapper g, double partialTick);
 
-    protected abstract void render(GraphicsWrapper g);
+    protected abstract void tick();
 
     public void setBackground(Color background) {
         this.background = background;
@@ -134,6 +137,8 @@ public abstract class Window {
         g.setColor(background);
         g.fillScreen();
     }
+
+    protected abstract void onClose();
 
     protected double imgToCartesianX(double x) {
         return 2 * x / width - 1;

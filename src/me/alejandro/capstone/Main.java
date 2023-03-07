@@ -1,5 +1,6 @@
 package me.alejandro.capstone;
 
+import arduino.Arduino;
 import me.alejandro.capstone.window.Window;
 import me.alejandro.capstone.window.WindowDashboard;
 
