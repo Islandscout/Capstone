@@ -32,8 +32,8 @@ public class Main {
 
 
 
-        Window blah = new WindowDashboard();
-        blah.startLoop();
+        Window gui = new WindowDashboard();
+        gui.startLoop();
 
     }
 

@@ -1,5 +1,6 @@
 package me.alejandro.capstone.model;
 
+import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.Matrix4D;
 import me.alejandro.capstone.util.Vector3D;
 
@@ -8,7 +9,7 @@ import java.awt.*;
 /**
  * Represents a 3D model
  */
-public class RawModel {
+public class RawModel implements Drawable {
 
     private Vector3D[] vertices;
     private int[] indices;
@@ -28,7 +29,8 @@ public class RawModel {
 
     }
 
-    public void draw(Graphics g) {
+    @Override
+    public void draw(GraphicsWrapper g) {
         //TODO copy geometry and apply transformation
 
         for(int i = 0; i < indices.length; i += 3) {
