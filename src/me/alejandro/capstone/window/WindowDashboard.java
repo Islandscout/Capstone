@@ -74,11 +74,16 @@ public class WindowDashboard extends Window {
         g.setColor(Color.RED);
     }
 
+    double frame;
+
     @Override
     public void tick() {
 
-        tach.getModel().getTransformation().rotate(new Vector3D(0, 0, 1), 0.1);
-        tach.getModel().getTransformation().rotate(new Vector3D(0, 1, 0), 0.3);
+        tach.getModel().getTransformation()
+                .setIdentity()
+                .scale(0.4)
+                .rotate(new Vector3D(0, 0, 1), frame -= 0.1)
+                .translate(new Vector3D(-0.6, 0, 0));
 
     }
 

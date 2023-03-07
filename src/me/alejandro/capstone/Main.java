@@ -1,12 +1,8 @@
 package me.alejandro.capstone;
 
-import arduino.Arduino;
-import me.alejandro.capstone.util.Matrix4D;
-import me.alejandro.capstone.util.Vector3D;
-import me.alejandro.capstone.window.Window;
+
 import me.alejandro.capstone.window.WindowDashboard;
 
-import javax.swing.*;
 
 public class Main {
 

@@ -1,7 +1,5 @@
 package me.alejandro.capstone.util;
 
-import javax.xml.bind.SchemaOutputResolver;
-
 public class Matrix4D implements Cloneable {
 
     double[][] entries;
@@ -20,14 +18,17 @@ public class Matrix4D implements Cloneable {
         this.entries[0][0] = a.x;
         this.entries[1][0] = a.y;
         this.entries[2][0] = a.z;
+        this.entries[3][0] = 1;
 
         this.entries[0][1] = b.x;
         this.entries[1][1] = b.y;
         this.entries[2][1] = b.z;
+        this.entries[3][1] = 1;
 
         this.entries[0][2] = c.x;
         this.entries[1][2] = c.y;
         this.entries[2][2] = c.z;
+        this.entries[3][2] = 1;
 
     }
 
@@ -65,7 +66,7 @@ public class Matrix4D implements Cloneable {
     }
 
     public Matrix4D scale(double factor) {
-        for(int r = 0; r < 4; r++) {
+        for(int r = 0; r < 3; r++) { //Only scale first 3 rows. 4th is reserved for homogeneous coordinates.
             for(int c = 0; c < 4; c++) {
 
                 this.entries[r][c] *= factor;
@@ -122,19 +123,19 @@ public class Matrix4D implements Cloneable {
         return this;
     }
 
-    public Matrix4D augment(Matrix4D matrix) throws IllegalArgumentException {
+    public Matrix4D augment(Matrix4D matrix) {
         return null;
     }
 
-    public Matrix4D getInverse() throws IllegalArgumentException {
+    public Matrix4D getInverse() {
         return null;
     }
 
-    public double getDeterminant() throws IllegalArgumentException {
+    public double getDeterminant() {
         return 0;
     }
 
-    public Matrix4D getAdjugate() throws IllegalArgumentException {
+    public Matrix4D getAdjugate() {
         return null;
     }
 
@@ -154,11 +155,11 @@ public class Matrix4D implements Cloneable {
         return null;
     }
 
-    public double[] getEigenvalues() throws IllegalArgumentException {
+    public double[] getEigenvalues() {
         return null;
     }
 
-    public Matrix4D[] getEigenspaces() throws IllegalArgumentException {
+    public Matrix4D[] getEigenspaces() {
         return null;
     }
 
@@ -172,9 +173,20 @@ public class Matrix4D implements Cloneable {
         return matrix;
     }
 
+    public Matrix4D setIdentity() {
+        for(int r = 0; r < 4; r++) {
+            for (int c = 0; c < 4; c++) {
+                this.entries[r][c] = r == c ? 1 : 0;
+            }
+        }
+        return this;
+    }
+
     //axis must be normal!
     //ang is in radians
     public Matrix4D rotate(Vector3D axis, double ang) {
+
+
 
         double ux = axis.x;
         double uy = axis.y;
@@ -204,7 +216,7 @@ public class Matrix4D implements Cloneable {
         transformation[3][0] = 0;
         transformation[3][1] = 0;
         transformation[3][2] = 0;
-        transformation[3][3] = 0;
+        transformation[3][3] = 1;
 
         return this.transform(transformation);
 

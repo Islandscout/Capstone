@@ -28,8 +28,8 @@ public class Tachometer implements Drawable {
 
         //defining vertices counter-clockwise
         Vector3D[] vertices = {
-                new Vector3D(-0.02, -0.01, 0),
-                new Vector3D(0.02, -0.01, 0),
+                new Vector3D(-0.02, -0.02, 0),
+                new Vector3D(0.02, -0.02, 0),
                 new Vector3D(0.01, 0.7, 0),
                 new Vector3D(-0.01, 0.7, 0),
         };
