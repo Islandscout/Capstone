@@ -15,6 +15,7 @@ public class Tachometer implements Drawable {
 
     private BufferedImage texture;
     private PolygonalModel dialModel;
+    private int rpm;
 
     public double posX, posY;
 
@@ -48,10 +49,15 @@ public class Tachometer implements Drawable {
     public void draw(GraphicsWrapper g, double partialTick) {
         g.drawImage(this.texture, posX, posY);
         this.dialModel.draw(g, partialTick);
-        g.getGraphics().drawString("RPM: 1200", 90, 330);
+        g.setColor(Color.WHITE);
+        g.getGraphics().drawString("RPM: " + this.rpm, 90, 330);
     }
 
     public PolygonalModel getModel() {
         return dialModel;
+    }
+
+    public void setRpm(int rpm) {
+        this.rpm = rpm;
     }
 }

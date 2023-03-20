@@ -7,6 +7,7 @@ import com.fazecast.jSerialComm.SerialPortPacketListener;
 import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.Point;
 import me.alejandro.capstone.util.Vector3D;
+import me.alejandro.capstone.window.element.Button;
 import me.alejandro.capstone.window.element.Plot;
 import me.alejandro.capstone.window.element.Tachometer;
 
@@ -25,6 +26,11 @@ public class WindowDashboard extends Window {
     //Window elements go here
     private Tachometer tach;
     private Plot plot;
+    private Button plotTorqueButton;
+    private Button plotPowerButton;
+    private Button recordButton;
+    private Button clearPlotButton;
+    private Button csvButton;
 
     public WindowDashboard() {
         super("dashboard", 680, 420);
@@ -35,6 +41,23 @@ public class WindowDashboard extends Window {
         this.plot = new Plot();
         this.plot.posX = 0.33;
         this.plot.posY = 0.1;
+
+        this.plotPowerButton = new Button("Plot Power");
+        this.plotPowerButton.posX = 0.1;
+        this.plotPowerButton.posY = 0.5;
+        this.plotTorqueButton = new Button("Plot Torque");
+        this.plotTorqueButton.posX = 0.45;
+        this.plotTorqueButton.posY = 0.5;
+        this.recordButton = new Button("REC");
+        this.recordButton.setTextColor(Color.RED);
+        this.recordButton.posX = -0.1;
+        this.recordButton.posY = -0.35;
+        this.clearPlotButton = new Button("Clear Plot");
+        this.clearPlotButton.posX = 0.2;
+        this.clearPlotButton.posY = -0.35;
+        this.csvButton = new Button("Save to CSV");
+        this.csvButton.posX = 0.7;
+        this.csvButton.posY = -0.35;
 
         BufferedImage bg = null;
         try {
@@ -79,6 +102,12 @@ public class WindowDashboard extends Window {
         tach.draw(g, partialTick);
         plot.draw(g, partialTick);
 
+        plotPowerButton.draw(g, partialTick);
+        plotTorqueButton.draw(g, partialTick);
+        recordButton.draw(g, partialTick);
+        clearPlotButton.draw(g, partialTick);
+        csvButton.draw(g, partialTick);
+
     }
 
     double frame;
@@ -89,6 +118,7 @@ public class WindowDashboard extends Window {
         frame += 0.03;
         double val = Math.sin(frame);
 
+        tach.setRpm((int)(val * 10000));
         tach.getModel().getTransformation()
                 .setIdentity()
                 .scale(0.32)

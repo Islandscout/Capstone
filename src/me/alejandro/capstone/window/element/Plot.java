@@ -102,7 +102,7 @@ public class Plot implements Drawable {
 
                 g.drawLine(xMin, y, xMax, y);
 
-                g.getGraphics().drawString("" + tickValue, g.cartesianToImgX(xMin) - 40, g.cartesianToImgY(y));
+                g.getGraphics().drawString("" + tickValue, g.cartesianToImgX(xMin) - 27, g.cartesianToImgY(y));
             }
         }
 
