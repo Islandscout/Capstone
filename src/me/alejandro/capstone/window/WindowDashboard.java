@@ -12,25 +12,28 @@ import me.alejandro.capstone.window.element.Plot;
 import me.alejandro.capstone.window.element.Tachometer;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.StringJoiner;
 
 public class WindowDashboard extends Window {
 
-    //TODO the graphic models go here
     private Arduino arduino;
     private ArduinoListener listener;
 
     //Window elements go here
     private Tachometer tach;
     private Plot plot;
-    private Button plotTorqueButton;
-    private Button plotPowerButton;
-    private Button recordButton;
-    private Button clearPlotButton;
-    private Button csvButton;
+    private Button plotTorqueButton; //TODO
+    private Button plotPowerButton; //TODO
+    private Button recordButton; //TODO
+    private Button clearPlotButton; //TODO clear plot
+    private Button csvButton; //TODO Save to CSV
+
+    private boolean recording;
 
     public WindowDashboard() {
         super("dashboard", 680, 420);
@@ -48,16 +51,31 @@ public class WindowDashboard extends Window {
         this.plotTorqueButton = new Button("Plot Torque");
         this.plotTorqueButton.posX = 0.45;
         this.plotTorqueButton.posY = 0.5;
-        this.recordButton = new Button("REC");
+        this.recordButton = new Button("REC [R]");
         this.recordButton.setTextColor(Color.RED);
         this.recordButton.posX = -0.1;
         this.recordButton.posY = -0.35;
-        this.clearPlotButton = new Button("Clear Plot");
+
+        this.clearPlotButton = new Button("Clear Plot [C]");
         this.clearPlotButton.posX = 0.2;
         this.clearPlotButton.posY = -0.35;
+        this.clearPlotButton.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                plot.getData().clear();
+            }
+        });
+
+
         this.csvButton = new Button("Save to CSV");
         this.csvButton.posX = 0.7;
         this.csvButton.posY = -0.35;
+        this.csvButton.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                exportCSV();
+            }
+        });
 
         BufferedImage bg = null;
         try {
@@ -115,17 +133,23 @@ public class WindowDashboard extends Window {
     @Override
     public void tick() {
 
-        frame += 0.03;
-        double val = Math.sin(frame);
+        if(getKey(KeyEvent.VK_C) && !clearPlotButton.pressed) {
+            clearPlotButton.execute();
+        }
 
-        tach.setRpm((int)(val * 10000));
+        frame += 0.03;
+        double rpm = 20 * (Math.sin(0.3 * Math.sin(frame) * frame) + 1.2);
+        double torque = 200 * (Math.cos(frame) + 1.2);
+
+
+        tach.setRpm((int)rpm);
         tach.getModel().getTransformation()
                 .setIdentity()
                 .scale(0.32)
-                .rotate(new Vector3D(0, 0, 1), val)
+                .rotate(new Vector3D(0, 0, 1), rpm)
                 .translate(new Vector3D(tach.posX, 0, 0));
 
-        plot.addPoint(new Point(frame, 20 * Math.abs(val)));
+        plot.addPoint(new Point(rpm, torque));
 
     }
 
@@ -135,6 +159,49 @@ public class WindowDashboard extends Window {
             this.arduino.getSerialPort().removeDataListener();
             this.arduino.closeConnection();
         }
+    }
+
+    private void exportCSV() {
+        Thread saveThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JFrame parentFrame = new JFrame();
+
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Export as CSV format");
+
+                int userSelection = fileChooser.showSaveDialog(parentFrame);
+
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    File fileToSave = fileChooser.getSelectedFile();
+
+                    try {
+                        FileWriter fw = new FileWriter(fileToSave, false);
+                        BufferedWriter bw = new BufferedWriter(fw);
+                        PrintWriter out = new PrintWriter(bw);
+
+                        StringJoiner rpmValues = new StringJoiner(",");
+                        StringJoiner torqueValues = new StringJoiner(",");
+                        StringJoiner powerValues = new StringJoiner(",");
+                        for(Point p : plot.getData()) {
+                            rpmValues.add("" + p.x);
+                            torqueValues.add("" + p.y);
+                            powerValues.add("" + p.y); //TODO sigh... you forgot power
+                        }
+                        out.println(rpmValues);
+                        out.println(torqueValues);
+                        out.println(powerValues);
+
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                parentFrame.dispose();
+            }
+        });
+        saveThread.start();
     }
 
     class ArduinoListener implements SerialPortPacketListener {

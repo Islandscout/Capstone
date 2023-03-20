@@ -1,15 +1,13 @@
 package me.alejandro.capstone.window;
 
-import me.alejandro.capstone.input.Input;
 import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
 
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
-public abstract class Window implements Drawable {
+public abstract class Window implements Drawable, KeyListener, MouseListener {
 
     private Frame frame;
     private Canvas canvas;
@@ -26,6 +24,8 @@ public abstract class Window implements Drawable {
     private boolean closeRequested;
 
     private String name;
+
+    private static boolean[] currentKeys = new boolean[256];
 
     public Window(String name, int width, int height) {
         this.name = name;
@@ -52,7 +52,8 @@ public abstract class Window implements Drawable {
             }
         });
         this.frame.setVisible(true);
-        this.canvas.addKeyListener(new Input());
+        this.canvas.addKeyListener(this);
+        this.canvas.addMouseListener(this);
 
         minDrawTime = fpsCap > 0 ? (long) (1000000000D / fpsCap) : 0;
 
@@ -74,7 +75,7 @@ public abstract class Window implements Drawable {
 
                     g.validate();
 
-                    //TODO poll inputs
+                    //usually in video games we poll inputs here
 
                     //ticking
                     long sinceLastTick = Math.min(System.nanoTime() - lastTickStartTime, 1000000000); //cap max catchup time to 1 second
@@ -151,19 +152,47 @@ public abstract class Window implements Drawable {
 
     protected abstract void onClose();
 
-    protected double imgToCartesianX(double x) {
-        return 2 * x / width - 1;
+    public static boolean getKey(int keyCode) {
+        return currentKeys[keyCode];
     }
 
-    protected double imgToCartesianY(double y) {
-        return aspect * -(2 * y / height - 1);
+    @Override
+    public void keyPressed(KeyEvent e) {
+        currentKeys[e.getKeyCode()] = true;
     }
 
-    protected int cartesianToImgX(double x) {
-        return (int) (width * (x + 1)) / 2;
+    @Override
+    public void keyReleased(KeyEvent e) {
+        currentKeys[e.getKeyCode()] = false;
     }
 
-    protected int cartesianToImgY(double y) {
-        return (int) (-height * (y - aspect) / (2 * aspect));
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }

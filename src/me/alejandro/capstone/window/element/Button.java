@@ -12,7 +12,9 @@ import java.io.IOException;
 public class Button implements Drawable {
 
     //TODO min max bounds
-    private boolean pressed;
+    //TODO click events and code execution
+    public boolean pressed;
+    private Runnable execution;
 
     private BufferedImage texture;
     private BufferedImage texturePressed;
@@ -36,12 +38,24 @@ public class Button implements Drawable {
 
     @Override
     public void draw(GraphicsWrapper g, double partialTick) {
-        g.drawImage(this.texture, this.posX, this.posY);
+        if(this.pressed) {
+            g.drawImage(this.texturePressed, this.posX, this.posY);
+        } else {
+            g.drawImage(this.texture, this.posX, this.posY);
+        }
         g.setColor(this.textColor);
         g.getGraphics().drawString(text, g.cartesianToImgX(this.posX - 0.1), g.cartesianToImgY(this.posY - 0.015));
     }
 
     public void setTextColor(Color textColor) {
         this.textColor = textColor;
+    }
+
+    public void setExecution(Runnable runnable) {
+        this.execution = runnable;
+    }
+
+    public void execute() {
+        this.execution.run();
     }
 }

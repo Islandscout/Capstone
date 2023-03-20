@@ -13,8 +13,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Plot implements Drawable {
+
+    //TODO We need to draw a red power plot (and horizontal grid lines)
 
     private final int HORIZONTAL_LINES = 6;
     private final int VERTICAL_LINES = 10;
@@ -41,7 +44,7 @@ public class Plot implements Drawable {
             vertLinePos[i] = (i + 1) / (double) VERTICAL_LINES;
         }
 
-        this.data = new ArrayList<>();
+        this.data = new CopyOnWriteArrayList<>();
 
         //debug
         /*for(int i = 0; i < 60; i++) {
@@ -159,5 +162,9 @@ public class Plot implements Drawable {
 
     public void addPoint(Point point) {
         this.data.add(point);
+    }
+
+    public List<Point> getData() {
+        return data;
     }
 }
