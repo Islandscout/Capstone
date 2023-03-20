@@ -34,6 +34,8 @@ public class PolygonalModel implements Drawable {
     @Override
     public void draw(GraphicsWrapper g, double partialTick) {
 
+        g.setColor(this.color);
+
         //Loop through every triangle
         for(int i = 0; i < indices.length; i += 3) {
 
@@ -65,5 +67,13 @@ public class PolygonalModel implements Drawable {
 
     public Matrix4D getTransformation() {
         return transformation;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 }

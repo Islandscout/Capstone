@@ -18,10 +18,10 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Capstone Engine Dynamometer Stand II (2023)");
-        System.out.println("Drew Craney - ME");
-        System.out.println("Grant Hoos - ME");
-        System.out.println("Alex Walker - ME");
-        System.out.println("Alejandro Miller - EE");
+        System.out.println("Drew Craney - ME: Mechanical design and fabrication");
+        System.out.println("Grant Hoos - ME: Mechanical design and fabrication");
+        System.out.println("Alex Walker - ME: Electrical design and integration");
+        System.out.println("Alejandro Miller - EE: Electrical design and programming");
 
         //So here's the idea. I want GUI that "feels" responsive. To do this, I want to
         // write a loop that executes around 60 Hz. That should be fast enough. I don't care about

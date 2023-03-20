@@ -74,23 +74,43 @@ public class GraphicsWrapper {
         this.graphics.fillPolygon(xPointsImg, yPointsImg, 3);
     }
 
+    public void drawLine(double x1, double y1, double x2, double y2) {
+        this.graphics.drawLine(cartesianToImgX(x1), cartesianToImgY(y1), cartesianToImgX(x2), cartesianToImgY(y2));
+    }
+
+    public void drawPoint(double x, double y) {
+        this.graphics.fillRect(cartesianToImgX(x), cartesianToImgY(y), 3, 3);
+    }
+
     public Graphics getGraphics() {
         return graphics;
     }
 
-    private double imgToCartesianX(double x) {
+    public double imgToCartesianX(double x) {
         return 2 * x / width - 1;
     }
 
-    private double imgToCartesianY(double y) {
+    public double imgToCartesianY(double y) {
         return aspect * -(2 * y / height - 1);
     }
 
-    private int cartesianToImgX(double x) {
+    public int cartesianToImgX(double x) {
         return (int) (width * (x + 1)) / 2;
     }
 
-    private int cartesianToImgY(double y) {
+    public int cartesianToImgY(double y) {
         return (int) (-height * (y - aspect) / (2 * aspect));
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public double getAspect() {
+        return aspect;
     }
 }

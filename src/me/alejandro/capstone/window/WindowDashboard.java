@@ -5,7 +5,9 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortPacketListener;
 import me.alejandro.capstone.render.GraphicsWrapper;
+import me.alejandro.capstone.util.Point;
 import me.alejandro.capstone.util.Vector3D;
+import me.alejandro.capstone.window.element.Plot;
 import me.alejandro.capstone.window.element.Tachometer;
 
 import javax.imageio.ImageIO;
@@ -22,12 +24,17 @@ public class WindowDashboard extends Window {
 
     //Window elements go here
     private Tachometer tach;
+    private Plot plot;
 
     public WindowDashboard() {
-        super("dashboard", 600, 400);
+        super("dashboard", 680, 420);
 
         this.tach = new Tachometer();
-        this.tach.posX = -0.6;
+        this.tach.posX = -0.65;
+
+        this.plot = new Plot();
+        this.plot.posX = 0.33;
+        this.plot.posY = 0.1;
 
         BufferedImage bg = null;
         try {
@@ -70,8 +77,8 @@ public class WindowDashboard extends Window {
     public void draw(GraphicsWrapper g, double partialTick) {
 
         tach.draw(g, partialTick);
+        plot.draw(g, partialTick);
 
-        g.setColor(Color.RED);
     }
 
     double frame;
@@ -79,11 +86,16 @@ public class WindowDashboard extends Window {
     @Override
     public void tick() {
 
+        frame += 0.03;
+        double val = Math.sin(frame);
+
         tach.getModel().getTransformation()
                 .setIdentity()
-                .scale(0.4)
-                .rotate(new Vector3D(0, 0, 1), frame -= 0.1)
-                .translate(new Vector3D(-0.6, 0, 0));
+                .scale(0.32)
+                .rotate(new Vector3D(0, 0, 1), val)
+                .translate(new Vector3D(tach.posX, 0, 0));
+
+        plot.addPoint(new Point(frame, 20 * Math.abs(val)));
 
     }
 

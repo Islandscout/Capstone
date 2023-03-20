@@ -6,6 +6,7 @@ import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.Vector3D;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +41,14 @@ public class Tachometer implements Drawable {
         Vector3D[] normals = {new Vector3D(0, 0, 1)};
 
         this.dialModel = new PolygonalModel(vertices, indices, normals);
+        this.dialModel.setColor(Color.RED);
     }
 
     @Override
     public void draw(GraphicsWrapper g, double partialTick) {
         g.drawImage(this.texture, posX, posY);
         this.dialModel.draw(g, partialTick);
+        g.getGraphics().drawString("RPM: 1200", 90, 330);
     }
 
     public PolygonalModel getModel() {
