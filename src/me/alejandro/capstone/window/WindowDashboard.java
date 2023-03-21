@@ -4,8 +4,9 @@ import arduino.Arduino;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortPacketListener;
+import me.alejandro.capstone.input.MouseAction;
 import me.alejandro.capstone.render.GraphicsWrapper;
-import me.alejandro.capstone.util.Point;
+import me.alejandro.capstone.util.Point2D;
 import me.alejandro.capstone.util.Vector3D;
 import me.alejandro.capstone.window.element.Button;
 import me.alejandro.capstone.window.element.Plot;
@@ -33,6 +34,8 @@ public class WindowDashboard extends Window {
     private Button clearPlotButton; //TODO clear plot
     private Button csvButton; //TODO Save to CSV
 
+    private boolean inputC, inputR;
+
     private boolean recording;
 
     public WindowDashboard() {
@@ -45,20 +48,24 @@ public class WindowDashboard extends Window {
         this.plot.posX = 0.33;
         this.plot.posY = 0.1;
 
-        this.plotPowerButton = new Button("Plot Power");
-        this.plotPowerButton.posX = 0.1;
-        this.plotPowerButton.posY = 0.5;
-        this.plotTorqueButton = new Button("Plot Torque");
-        this.plotTorqueButton.posX = 0.45;
-        this.plotTorqueButton.posY = 0.5;
-        this.recordButton = new Button("REC [R]");
-        this.recordButton.setTextColor(Color.RED);
-        this.recordButton.posX = -0.1;
-        this.recordButton.posY = -0.35;
+        this.plotPowerButton = new Button("Plot Power", this.canvas);
+        this.plotPowerButton.setPosition(0.1, 0.5);
 
-        this.clearPlotButton = new Button("Clear Plot [C]");
-        this.clearPlotButton.posX = 0.2;
-        this.clearPlotButton.posY = -0.35;
+        this.plotTorqueButton = new Button("Plot Torque", this.canvas);
+        this.plotTorqueButton.setPosition(0.45, 0.5);
+
+        this.recordButton = new Button("REC [R]", this.canvas);
+        this.recordButton.setTextColor(Color.RED);
+        this.recordButton.setPosition(-0.1, -0.35);
+        this.recordButton.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                recordButton.pressed = !recordButton.pressed;
+            }
+        });
+
+        this.clearPlotButton = new Button("Clear Plot [C]", this.canvas);
+        this.clearPlotButton.setPosition(0.2, -0.35);
         this.clearPlotButton.setExecution(new Runnable() {
             @Override
             public void run() {
@@ -66,10 +73,8 @@ public class WindowDashboard extends Window {
             }
         });
 
-
-        this.csvButton = new Button("Save to CSV");
-        this.csvButton.posX = 0.7;
-        this.csvButton.posY = -0.35;
+        this.csvButton = new Button("Save to CSV", this.canvas);
+        this.csvButton.setPosition(0.7, -0.35);
         this.csvButton.setExecution(new Runnable() {
             @Override
             public void run() {
@@ -133,12 +138,33 @@ public class WindowDashboard extends Window {
     @Override
     public void tick() {
 
-        if(getKey(KeyEvent.VK_C) && !clearPlotButton.pressed) {
-            clearPlotButton.execute();
+        //TODO
+        // honestly, I would put these buttons in a list and loop through them on mouse click
+        this.plotTorqueButton.testClickEvent(getMousePos(), MouseAction.BUTTON_CLICK);
+
+        if(getKey(KeyEvent.VK_C)) {
+            if(!this.inputC) {
+                clearPlotButton.execute();
+                this.inputC = true;
+            }
+        } else {
+            this.inputC = false;
         }
 
+        if(getKey(KeyEvent.VK_R)) {
+            if(!this.inputR) {
+                recordButton.execute();
+                this.inputR = true;
+            }
+        } else {
+            this.inputR = false;
+        }
+
+        this.plot.hold = !this.recordButton.pressed;
+
+
         frame += 0.03;
-        double rpm = 20 * (Math.sin(0.3 * Math.sin(frame) * frame) + 1.2);
+        double rpm = 20 * (Math.sin(0.3 * frame) + 1.2);
         double torque = 200 * (Math.cos(frame) + 1.2);
 
 
@@ -149,7 +175,7 @@ public class WindowDashboard extends Window {
                 .rotate(new Vector3D(0, 0, 1), rpm)
                 .translate(new Vector3D(tach.posX, 0, 0));
 
-        plot.addPoint(new Point(rpm, torque));
+        plot.addPoint(new Point2D(rpm, torque));
 
     }
 
@@ -183,7 +209,7 @@ public class WindowDashboard extends Window {
                         StringJoiner rpmValues = new StringJoiner(",");
                         StringJoiner torqueValues = new StringJoiner(",");
                         StringJoiner powerValues = new StringJoiner(",");
-                        for(Point p : plot.getData()) {
+                        for(Point2D p : plot.getData()) {
                             rpmValues.add("" + p.x);
                             torqueValues.add("" + p.y);
                             powerValues.add("" + p.y); //TODO sigh... you forgot power

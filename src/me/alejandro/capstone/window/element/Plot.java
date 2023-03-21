@@ -4,14 +4,13 @@ import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.MathPlus;
 import me.alejandro.capstone.util.Matrix4D;
-import me.alejandro.capstone.util.Point;
+import me.alejandro.capstone.util.Point2D;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -24,10 +23,12 @@ public class Plot implements Drawable {
     private final double[] horizLinePos = new double[HORIZONTAL_LINES];
     private final double[] vertLinePos = new double[VERTICAL_LINES];
 
+    public boolean hold;
+
     private BufferedImage borderTex;
     private BufferedImage bg;
 
-    private List<Point> data; //assume these are non-negative
+    private List<Point2D> data; //assume these are non-negative
 
     private Color gridColor = new Color(25, 81, 87);
 
@@ -45,12 +46,6 @@ public class Plot implements Drawable {
         }
 
         this.data = new CopyOnWriteArrayList<>();
-
-        //debug
-        /*for(int i = 0; i < 60; i++) {
-            Point p = new Point(Math.cos(i) + 1.1, Math.sin(i) + 1.1);
-            this.data.add(p);
-        }*/
 
         try {
             this.borderTex = ImageIO.read(new File("res/plot_border.png"));
@@ -160,11 +155,13 @@ public class Plot implements Drawable {
         return (g.imgToCartesianY(0) - g.imgToCartesianY(this.bg.getHeight()));
     }
 
-    public void addPoint(Point point) {
-        this.data.add(point);
+    public void addPoint(Point2D point) {
+        if(!this.hold) {
+            this.data.add(point);
+        }
     }
 
-    public List<Point> getData() {
+    public List<Point2D> getData() {
         return data;
     }
 }

@@ -1,7 +1,10 @@
 package me.alejandro.capstone.window.element;
 
+import me.alejandro.capstone.input.MouseAction;
 import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
+import me.alejandro.capstone.util.BoundingBox;
+import me.alejandro.capstone.util.Point2D;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,21 +14,22 @@ import java.io.IOException;
 
 public class Button implements Drawable {
 
-    //TODO min max bounds
-    //TODO click events and code execution
     public boolean pressed;
     private Runnable execution;
 
     private BufferedImage texture;
     private BufferedImage texturePressed;
-    public double posX, posY;
+    private double posX, posY;
     private String text;
     private Color textColor;
+    private BoundingBox boundingBox;
+    private Canvas canvas;
 
-    public Button(String text) {
+    public Button(String text, Canvas canvas) {
 
         this.text = text;
         this.textColor = Color.BLACK;
+        this.canvas = canvas;
 
         try {
             this.texture = ImageIO.read(new File("res/button.png"));
@@ -34,6 +38,8 @@ public class Button implements Drawable {
             System.out.println("Could not load button textures! Is it missing in the JAR?");
             e.printStackTrace();
         }
+
+        this.setPosition(0, 0);
     }
 
     @Override
@@ -57,5 +63,38 @@ public class Button implements Drawable {
 
     public void execute() {
         this.execution.run();
+    }
+
+    public void testClickEvent(Point2D mousePos, MouseAction action) {
+        if(this.boundingBox.containsPoint(mousePos)) {
+            this.pressed = true;
+        } else {
+            this.pressed = false;
+        }
+    }
+
+    public void setPosition(double x, double y) {
+        this.posX = x;
+        this.posY = y;
+        this.boundingBox = this.computeHitboxes();
+    }
+
+    private BoundingBox computeHitboxes() {
+        double width = 2 * texture.getWidth() / (double) canvas.getWidth();
+        double height = (imgToCartesianY(0) - imgToCartesianY(texture.getHeight()));
+
+        Point2D max = new Point2D(width / 2, height / 2);
+        Point2D min = new Point2D(-max.x, -max.y);
+
+        min.x += posX;
+        max.x += posX;
+        min.y += posY;
+        max.y += posY;
+
+        return new BoundingBox(min, max);
+    }
+
+    private double imgToCartesianY(double y) {
+        return ((double)canvas.getHeight() / canvas.getWidth()) * -(2 * y / canvas.getHeight() - 1);
     }
 }

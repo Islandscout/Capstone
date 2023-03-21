@@ -2,6 +2,7 @@ package me.alejandro.capstone.window;
 
 import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
+import me.alejandro.capstone.util.Point2D;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -10,7 +11,7 @@ import java.awt.image.BufferedImage;
 public abstract class Window implements Drawable, KeyListener, MouseListener {
 
     private Frame frame;
-    private Canvas canvas;
+    protected Canvas canvas;
 
     private Color fallbackBg;
     private BufferedImage bg;
@@ -26,6 +27,7 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
     private String name;
 
     private static boolean[] currentKeys = new boolean[256];
+    private Point2D mousePos;
 
     public Window(String name, int width, int height) {
         this.name = name;
@@ -35,6 +37,8 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
         this.aspect = (float) height / width;
 
         this.fallbackBg = Color.BLACK; //default
+
+        this.mousePos = new Point2D(0, 0);
 
         this.frame = new Frame();
         this.canvas = new Canvas();
@@ -89,6 +93,10 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
                             if(i + 1 == ticks) {
                                 lastTickStartTime = System.nanoTime() - remainderTime;
                             }
+
+                            Point mouseScreenPos = MouseInfo.getPointerInfo().getLocation();
+                            mousePos.x = g.imgToCartesianX(mouseScreenPos.x - canvas.getLocationOnScreen().x);
+                            mousePos.y = g.imgToCartesianY(mouseScreenPos.y - canvas.getLocationOnScreen().y);
 
                             tick();
                         }
@@ -154,6 +162,10 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
 
     public static boolean getKey(int keyCode) {
         return currentKeys[keyCode];
+    }
+
+    public Point2D getMousePos() {
+        return this.mousePos;
     }
 
     @Override
