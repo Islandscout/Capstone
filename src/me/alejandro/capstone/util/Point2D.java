@@ -16,4 +16,16 @@ public class Point2D {
     public String toString() {
         return "(" + x + ", " + y + ")";
     }
+
+    public Point2D multiply(double factor) {
+        this.x *= factor;
+        this.y *= factor;
+        return this;
+    }
+
+    public Point2D add(double x, double y) {
+        this.x += x;
+        this.y += y;
+        return this;
+    }
 }

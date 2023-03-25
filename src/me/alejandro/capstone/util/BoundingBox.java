@@ -21,4 +21,14 @@ public class BoundingBox {
     public Point2D getMax() {
         return max;
     }
+
+    public void translate(double x, double y) {
+        this.min.add(x, y);
+        this.max.add(x, y);
+    }
+
+    public void scale(double factor) {
+        this.min.multiply(factor);
+        this.max.multiply(factor);
+    }
 }

@@ -1,5 +1,7 @@
 package me.alejandro.capstone.render;
 
+import me.alejandro.capstone.util.Point2D;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
@@ -72,6 +74,19 @@ public class GraphicsWrapper {
         };
 
         this.graphics.fillPolygon(xPointsImg, yPointsImg, 3);
+    }
+
+    public void fillRect(double x1, double y1, double x2, double y2) {
+
+        int x1Pixel = cartesianToImgX(x1);
+        int x2Pixel = cartesianToImgX(x2);
+        int y1Pixel = cartesianToImgY(y1);
+        int y2Pixel = cartesianToImgY(y2);
+
+        this.graphics.fillPolygon(
+                new int[] {x1Pixel, x2Pixel, x2Pixel, x1Pixel},
+                new int[] {y1Pixel, y1Pixel, y2Pixel, y2Pixel},
+                4);
     }
 
     public void drawLine(double x1, double y1, double x2, double y2) {

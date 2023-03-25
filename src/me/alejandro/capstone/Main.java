@@ -20,7 +20,7 @@ public class Main {
         System.out.println("Capstone Engine Dynamometer Stand II (2023)");
         System.out.println("Drew Craney - ME: Mechanical design and fabrication");
         System.out.println("Grant Hoos - ME: Mechanical design and fabrication");
-        System.out.println("Alex Walker - ME: Electrical design and integration");
+        System.out.println("Alexander Walker - ME: Mechatronics and integration");
         System.out.println("Alejandro Miller - EE: Electrical design and programming");
 
         //So here's the idea. I want GUI that "feels" responsive. To do this, I want to
@@ -31,7 +31,7 @@ public class Main {
 
 
         WindowDashboard gui = new WindowDashboard();
-        //gui.initArduino();
+        gui.initArduino();
         gui.startLoop();
 
     }

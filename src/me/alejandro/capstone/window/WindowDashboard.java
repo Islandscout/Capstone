@@ -9,6 +9,7 @@ import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.Point2D;
 import me.alejandro.capstone.util.Vector3D;
 import me.alejandro.capstone.window.element.Button;
+import me.alejandro.capstone.window.element.Meter;
 import me.alejandro.capstone.window.element.Plot;
 import me.alejandro.capstone.window.element.Tachometer;
 
@@ -28,11 +29,14 @@ public class WindowDashboard extends Window {
     //Window elements go here
     private Tachometer tach;
     private Plot plot;
+    private Meter torqueMeter;
     private Button plotTorqueButton; //TODO
     private Button plotPowerButton; //TODO
     private Button recordButton; //TODO
     private Button clearPlotButton; //TODO clear plot
     private Button csvButton; //TODO Save to CSV
+
+    private volatile double torque, rpm;
 
     private boolean inputC, inputR;
 
@@ -47,6 +51,9 @@ public class WindowDashboard extends Window {
         this.plot = new Plot();
         this.plot.posX = 0.33;
         this.plot.posY = 0.1;
+
+        this.torqueMeter = new Meter(7, "Torque");
+        this.torqueMeter.transform(0.1, -0.6, -0.5);
 
         this.plotPowerButton = new Button("Plot Power", this.canvas);
         this.plotPowerButton.setPosition(0.1, 0.5);
@@ -124,6 +131,7 @@ public class WindowDashboard extends Window {
 
         tach.draw(g, partialTick);
         plot.draw(g, partialTick);
+        torqueMeter.draw(g, partialTick);
 
         plotPowerButton.draw(g, partialTick);
         plotTorqueButton.draw(g, partialTick);
@@ -163,9 +171,8 @@ public class WindowDashboard extends Window {
         this.plot.hold = !this.recordButton.pressed;
 
 
-        frame += 0.03;
-        double rpm = 20 * (Math.sin(0.3 * frame) + 1.2);
-        double torque = 200 * (Math.cos(frame) + 1.2);
+        frame++;
+        double rpm = frame;
 
 
         tach.setRpm((int)rpm);
@@ -176,6 +183,7 @@ public class WindowDashboard extends Window {
                 .translate(new Vector3D(tach.posX, 0, 0));
 
         plot.addPoint(new Point2D(rpm, torque));
+        torqueMeter.setValue(torque / 25);
 
     }
 
@@ -185,6 +193,10 @@ public class WindowDashboard extends Window {
             this.arduino.getSerialPort().removeDataListener();
             this.arduino.closeConnection();
         }
+    }
+
+    private void updateTorque(double value) {
+        this.torque = value;
     }
 
     private void exportCSV() {
@@ -232,6 +244,13 @@ public class WindowDashboard extends Window {
 
     class ArduinoListener implements SerialPortPacketListener {
 
+        private StringBuilder lineSB;
+        private boolean syncd;
+
+        ArduinoListener() {
+            this.lineSB = new StringBuilder();
+        }
+
         @Override
         public int getPacketSize() {
             return 1; //one-byte packets should be good for our application
@@ -249,16 +268,27 @@ public class WindowDashboard extends Window {
             //TODO hmm, maybe we want to clear the buffer before reading in our first message?
             //Don't use Arduino#serialRead(). It's not sync'd.
 
-            StringBuilder sb = new StringBuilder();
             for(byte element : e.getReceivedData()) {
-                if((char) element == 10) {
-                    sb.append("\\n");
-                }
-                else {
-                    sb.append((char) element);
+
+                boolean endl = (char) element == 10;
+
+                if(syncd) {
+
+                    if(endl) {
+                        try {
+                            updateTorque(Double.parseDouble(this.lineSB.toString()));
+                        } catch (NumberFormatException exception) {
+                            exception.printStackTrace();
+                        }
+                        this.lineSB.setLength(0); //clear (avoids a "new")
+                    } else {
+                        this.lineSB.append((char)element);
+                    }
+
+                } else if(endl) {
+                    this.syncd = true;
                 }
             }
-            System.out.println("data: " + sb);
         }
     }
 }
