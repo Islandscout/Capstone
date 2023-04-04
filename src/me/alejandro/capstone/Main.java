@@ -31,7 +31,7 @@ public class Main {
 
 
         WindowDashboard gui = new WindowDashboard();
-        gui.initArduino();
+        //gui.initArduino();
         gui.startLoop();
 
     }

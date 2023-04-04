@@ -23,6 +23,7 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
     private final long minDrawTime;
 
     private boolean closeRequested;
+    protected boolean mouseDown, wasMouseDown;
 
     private String name;
 
@@ -99,6 +100,8 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
                             mousePos.y = g.imgToCartesianY(mouseScreenPos.y - canvas.getLocationOnScreen().y);
 
                             tick();
+
+                            wasMouseDown = mouseDown;
                         }
 
                         sinceLastTick = remainderTime;
@@ -190,12 +193,12 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+        this.mouseDown = true;
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
+        this.mouseDown = false;
     }
 
     @Override
