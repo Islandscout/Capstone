@@ -16,12 +16,15 @@ import me.alejandro.capstone.window.element.Tachometer;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.Vector;
 
 public class WindowDashboard extends Window {
 
@@ -96,10 +99,22 @@ public class WindowDashboard extends Window {
 
         this.valveUpButton = new Button("Valve UP", this.canvas);
         this.valveUpButton.setPosition(0.65, -0.45);
+        this.valveUpButton.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                arduino.serialWrite("coarse up");
+            }
+        });
         this.buttons.add(valveUpButton);
 
         this.valveDownButton = new Button("Valve DOWN", this.canvas);
         this.valveDownButton.setPosition(0.65, -0.54);
+        this.valveUpButton.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                arduino.serialWrite("coarse down");
+            }
+        });
         this.buttons.add(valveDownButton);
 
         BufferedImage bg = null;
@@ -118,7 +133,26 @@ public class WindowDashboard extends Window {
     public void initArduino() {
         SerialPort[] ports = SerialPort.getCommPorts();
 
-        //TODO Allow user to choose a port
+        /* //TODO Allow user to choose a port
+
+        String[] petStrings = { "Bird", "Cat", "Dog", "Rabbit", "Pig" };
+
+        JFrame frame = new JFrame("ComboBoxDemo2");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        //Legit skidded from Oracle docs
+        JComboBox petList = new JComboBox(petStrings);
+        petList.setSelectedIndex(4);
+        petList.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                String petName = (String)cb.getSelectedItem();
+                cb.setSelectedItem(cb.getSelectedIndex());
+            }
+        });
+         */
+
         for(SerialPort port : ports) {
             this.arduino = new Arduino(port.getSystemPortName(), port.getBaudRate());
             this.arduino.openConnection();
@@ -128,15 +162,14 @@ public class WindowDashboard extends Window {
 
         if(ports.length == 0) {
             System.out.println("No ports found, try again?");
+        } else {
+            //Set up event listener for Arduino. This is just like Bukkit.
+            // Of course we need to sync these threads up.
+            this.listener = new ArduinoListener();
+            this.arduino.getSerialPort().addDataListener(this.listener);
         }
 
-        //debug
-        System.out.println("success? " + this.arduino.getSerialPort().isOpen());
 
-        //Set up event listener for Arduino. This is just like Bukkit.
-        // Of course we need to sync these threads up.
-        this.listener = new ArduinoListener();
-        this.arduino.getSerialPort().addDataListener(this.listener);
     }
 
     @Override
@@ -149,6 +182,10 @@ public class WindowDashboard extends Window {
         for(Button button : buttons) {
             button.draw(g, partialTick);
         }
+
+        g.setColor(Color.WHITE);
+        g.getGraphics().drawString("DAQ Arduino connected on port: ", 0, 15);
+        g.getGraphics().drawString("Controller Arduino connected on port: ", 0, 30);
 
     }
 
@@ -163,6 +200,7 @@ public class WindowDashboard extends Window {
             for(Button button : buttons) {
                 button.testClickEvent(getMousePos(), mAction);
             }
+
         }
 
         if(getKey(KeyEvent.VK_C)) {
@@ -196,7 +234,7 @@ public class WindowDashboard extends Window {
                 .translate(new Vector3D(tach.posX, 0, 0));
 
 
-        plot.addPoint(new Point2D(Math.cos(rpm / 10) + 1.1, Math.sin(frame / 5) + 1.1));
+        plot.addPoint(Math.cos(rpm / 10) + 1.1, Math.sin(frame / 5) + 1.1, 1);
         torqueMeter.setValue(torque / 25);
 
     }
@@ -235,10 +273,10 @@ public class WindowDashboard extends Window {
                         StringJoiner rpmValues = new StringJoiner(",");
                         StringJoiner torqueValues = new StringJoiner(",");
                         StringJoiner powerValues = new StringJoiner(",");
-                        for(Point2D p : plot.getData()) {
+                        for(Vector3D p : plot.getData()) {
                             rpmValues.add("" + p.x);
                             torqueValues.add("" + p.y);
-                            powerValues.add("" + p.y); //TODO sigh... you forgot power
+                            powerValues.add("" + p.z);
                         }
                         out.println(rpmValues);
                         out.println(torqueValues);

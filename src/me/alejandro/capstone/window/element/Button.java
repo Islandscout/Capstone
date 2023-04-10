@@ -7,6 +7,7 @@ import me.alejandro.capstone.util.BoundingBox;
 import me.alejandro.capstone.util.Point2D;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -89,7 +90,12 @@ public class Button implements Drawable {
                 if(action == MouseAction.BUTTON_RELEASE) {
 
                     if(inside) {
-                        this.execute();
+                        try {
+                            this.execute();
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(canvas, "An internal exception occurred while attempting to execute your action.");
+                            e.printStackTrace();
+                        }
                     }
 
                     this.state = ButtonState.UP;

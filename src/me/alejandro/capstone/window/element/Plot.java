@@ -4,7 +4,7 @@ import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.MathPlus;
 import me.alejandro.capstone.util.Matrix4D;
-import me.alejandro.capstone.util.Point2D;
+import me.alejandro.capstone.util.Vector3D;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -28,7 +28,8 @@ public class Plot implements Drawable {
     private BufferedImage borderTex;
     private BufferedImage bg;
 
-    private List<Point2D> data; //assume these are non-negative
+    private List<Vector3D> data; //assume these are non-negative. For future, a Tuple might be more appropriate
+
 
     private Color gridColor = new Color(25, 81, 87);
 
@@ -155,13 +156,13 @@ public class Plot implements Drawable {
         return (g.imgToCartesianY(0) - g.imgToCartesianY(this.bg.getHeight()));
     }
 
-    public void addPoint(Point2D point) {
+    public void addPoint(double x, double y1, double y2) {
         if(!this.hold) {
-            this.data.add(point);
+            this.data.add(new Vector3D(x, y1, y2));
         }
     }
 
-    public List<Point2D> getData() {
+    public List<Vector3D> getData() {
         return data;
     }
 }
