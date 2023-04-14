@@ -31,7 +31,17 @@ public class Main {
 
 
         WindowDashboard gui = new WindowDashboard();
-        gui.initArduino();
+
+        System.out.println();
+
+        try {
+            gui.initArduino();
+        } catch (Exception e) {
+            System.out.println("A critical exception has occurred while initializing. Program will now exit.");
+            e.printStackTrace();
+            quit();
+        }
+
         gui.startLoop();
 
     }

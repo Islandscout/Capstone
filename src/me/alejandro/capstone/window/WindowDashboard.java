@@ -99,7 +99,6 @@ public class WindowDashboard extends Window {
         try {
             bg = ImageIO.read(new File("res/bg.png"));
         } catch (IOException e) {
-            System.out.println("Could not load background texture! Is it missing in the JAR?");
             e.printStackTrace();
         }
 
@@ -109,6 +108,9 @@ public class WindowDashboard extends Window {
     }
 
     public void initArduino() {
+
+        System.out.println("Detecting serial devices...");
+
         SerialPort[] ports = SerialPort.getCommPorts();
 
         /* //TODO Allow user to choose a port
@@ -132,11 +134,12 @@ public class WindowDashboard extends Window {
          */
 
         for(SerialPort port : ports) {
-            this.arduino = new Arduino(port.getSystemPortName(), port.getBaudRate());
-            this.arduino.openConnection();
-            break;
-
+            System.out.println("NAME: " + port.getSystemPortName() + ", BAUD RATE: " + port.getBaudRate());
+            //this.arduino = new Arduino(port.getSystemPortName(), port.getBaudRate());
+            //this.arduino.openConnection();
         }
+        System.out.println(ports.length + " serial devices detected");
+        System.out.println();
 
         if(ports.length == 0) {
             System.out.println("No ports found, try again?");
@@ -146,8 +149,6 @@ public class WindowDashboard extends Window {
             this.listener = new ArduinoListener();
             this.arduino.getSerialPort().addDataListener(this.listener);
         }
-
-
     }
 
     @Override
@@ -163,9 +164,9 @@ public class WindowDashboard extends Window {
             button.draw(g, partialTick);
         }
 
-        g.setColor(Color.WHITE);
-        g.getGraphics().drawString("DAQ Arduino connected on port: ", 0, 15);
-        g.getGraphics().drawString("Controller Arduino connected on port: ", 0, 30);
+        //g.setColor(Color.WHITE);
+        //g.getGraphics().drawString("DAQ Arduino connected on port: ", 0, 15);
+        //g.getGraphics().drawString("Controller Arduino connected on port: ", 0, 30);
 
     }
 
