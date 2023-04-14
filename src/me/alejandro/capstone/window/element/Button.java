@@ -13,21 +13,64 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Button implements Drawable {
+public abstract class Button implements Drawable {
 
     public ButtonMode mode = ButtonMode.CLICK;
     public ButtonState state = ButtonState.UP;
     public boolean engaged;
     private Runnable execution;
 
-    private BufferedImage texture;
-    private BufferedImage texturePressed;
-    private BufferedImage textureLatched;
+    protected static BufferedImage textureShared;
+    protected static BufferedImage texturePressedShared;
+    protected static BufferedImage textureLatchedShared;
+
+    protected static BufferedImage textureSmall_Shared;
+    protected static BufferedImage textureSmall_PressedShared;
+    protected static BufferedImage textureSmall_LatchedShared;
+
+    protected static BufferedImage textureUp_Shared;
+    protected static BufferedImage textureUp_PressedShared;
+    protected static BufferedImage textureUp_LatchedShared;
+
+    protected static BufferedImage textureDown_Shared;
+    protected static BufferedImage textureDown_PressedShared;
+    protected static BufferedImage textureDown_LatchedShared;
+
+
+    protected BufferedImage texture, texturePressed, textureLatched;
+
     private double posX, posY;
     private String text;
+    protected double textOffsetX;
     private Color textColor;
     private BoundingBox boundingBox;
     private Canvas canvas;
+
+    static {
+        try {
+            textureShared = ImageIO.read(new File("res/button.png"));
+            texturePressedShared = ImageIO.read(new File("res/button_pressed.png"));
+            textureLatchedShared = ImageIO.read(new File("res/button_latched.png"));
+
+            textureSmall_Shared = ImageIO.read(new File("res/button1.png"));
+            textureSmall_PressedShared = ImageIO.read(new File("res/button1_pressed.png"));
+            textureSmall_LatchedShared = ImageIO.read(new File("res/button1_latched.png"));
+
+            textureSmall_Shared = ImageIO.read(new File("res/button1.png"));
+            textureSmall_PressedShared = ImageIO.read(new File("res/button1_pressed.png"));
+            textureSmall_LatchedShared = ImageIO.read(new File("res/button1_latched.png"));
+
+            textureUp_Shared = ImageIO.read(new File("res/buttonUp.png"));
+            textureUp_PressedShared = textureUp_LatchedShared = ImageIO.read(new File("res/buttonUp_pressed.png"));
+
+            textureDown_Shared = ImageIO.read(new File("res/buttonDown.png"));
+            textureDown_PressedShared = textureDown_LatchedShared = ImageIO.read(new File("res/buttonDown_pressed.png"));
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public Button(String text, Canvas canvas) {
 
@@ -35,16 +78,7 @@ public class Button implements Drawable {
         this.textColor = Color.BLACK;
         this.canvas = canvas;
 
-        try {
-            this.texture = ImageIO.read(new File("res/button.png"));
-            this.texturePressed = ImageIO.read(new File("res/button_pressed.png"));
-            this.textureLatched = ImageIO.read(new File("res/button_pressed1.png"));
-        } catch (IOException e) {
-            System.out.println("Could not load button textures! Is it missing in the JAR?");
-            e.printStackTrace();
-        }
-
-        this.setPosition(0, 0);
+        //this.setPosition(0, 0);
     }
 
     @Override
@@ -57,7 +91,7 @@ public class Button implements Drawable {
             g.drawImage(this.texture, this.posX, this.posY);
         }
         g.setColor(this.textColor);
-        g.getGraphics().drawString(text, g.cartesianToImgX(this.posX - 0.1), g.cartesianToImgY(this.posY - 0.015));
+        g.getGraphics().drawString(text, g.cartesianToImgX(this.posX + textOffsetX), g.cartesianToImgY(this.posY - 0.015));
     }
 
     public void setTextColor(Color textColor) {
@@ -148,8 +182,8 @@ public class Button implements Drawable {
     }
 
     private BoundingBox computeHitboxes() {
-        double width = 2 * texture.getWidth() / (double) canvas.getWidth();
-        double height = (imgToCartesianY(0) - imgToCartesianY(texture.getHeight()));
+        double width = 2 * this.texture.getWidth() / (double) canvas.getWidth();
+        double height = (imgToCartesianY(0) - imgToCartesianY(this.texture.getHeight()));
 
         Point2D max = new Point2D(width / 2, height / 2);
         Point2D min = new Point2D(-max.x, -max.y);

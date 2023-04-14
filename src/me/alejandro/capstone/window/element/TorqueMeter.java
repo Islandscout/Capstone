@@ -8,18 +8,17 @@ import me.alejandro.capstone.util.Point2D;
 
 import java.awt.*;
 
-public class Meter implements Drawable {
+public class TorqueMeter implements Drawable {
 
     private BoundingBox bounds;
     private Color background, foreground;
     private double value;
-    private String name;
+    private static final double MAX_TORQUE = 35;
 
-    public Meter(double lengthRatio, String name) {
+    public TorqueMeter(double lengthRatio) {
         this.bounds = new BoundingBox(new Point2D(-lengthRatio/2, -0.5), new Point2D(lengthRatio/2, 0.5));
         this.background = new Color(0, 0, 0);
         this.foreground = Color.CYAN;
-        this.name = name;
     }
 
     @Override
@@ -31,11 +30,12 @@ public class Meter implements Drawable {
 
         //draw foreground
         g.setColor(this.foreground);
-        double xMax = this.bounds.getMin().x + (this.bounds.getMax().x - this.bounds.getMin().x) * this.value;
+        double relativeValue = Math.min(Math.max(0, value / MAX_TORQUE), 1);
+        double xMax = this.bounds.getMin().x + (this.bounds.getMax().x - this.bounds.getMin().x) * relativeValue;
         g.fillRect(this.bounds.getMin().x, this.bounds.getMin().y, xMax, this.bounds.getMax().y);
 
         //draw title
-        g.getGraphics().drawString(this.name, g.cartesianToImgX(this.bounds.getMin().x), g.cartesianToImgY(this.bounds.getMax().y) - 4);
+        g.getGraphics().drawString("Torque: " + value + " N*m", g.cartesianToImgX(this.bounds.getMin().x), g.cartesianToImgY(this.bounds.getMax().y) - 4);
 
     }
 
@@ -45,6 +45,6 @@ public class Meter implements Drawable {
     }
 
     public void setValue(double value) {
-        this.value = Math.max(Math.min(value, 1), 0);
+        this.value = value;
     }
 }

@@ -6,25 +6,19 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortPacketListener;
 import me.alejandro.capstone.input.MouseAction;
 import me.alejandro.capstone.render.GraphicsWrapper;
-import me.alejandro.capstone.util.Point2D;
 import me.alejandro.capstone.util.Vector3D;
+import me.alejandro.capstone.window.element.*;
 import me.alejandro.capstone.window.element.Button;
-import me.alejandro.capstone.window.element.Meter;
-import me.alejandro.capstone.window.element.Plot;
-import me.alejandro.capstone.window.element.Tachometer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.Vector;
 
 public class WindowDashboard extends Window {
 
@@ -34,7 +28,9 @@ public class WindowDashboard extends Window {
     //Window elements go here
     private final Tachometer tach;
     private final Plot plot;
-    private final Meter torqueMeter;
+    private final TorqueMeter torqueMeter;
+    private final ValveControl valveControl;
+    private final ThrottleControl throttleControl;
 
     private final List<Button> buttons;
     private final Button plotTorqueButton;
@@ -42,7 +38,6 @@ public class WindowDashboard extends Window {
     private final Button recordButton;
     private final Button clearPlotButton;
     private final Button csvButton;
-    private final Button valveUpButton, valveDownButton;
 
     private volatile double torque, rpm;
 
@@ -58,26 +53,29 @@ public class WindowDashboard extends Window {
         this.plot.posX = 0.33;
         this.plot.posY = 0.1;
 
-        this.torqueMeter = new Meter(7, "Torque");
+        this.torqueMeter = new TorqueMeter(7);
         this.torqueMeter.transform(0.1, -0.6, -0.5);
+
+        this.valveControl = new ValveControl(this.canvas, 0.5, -0.51);
+        this.throttleControl = new ThrottleControl(this.canvas, 0, -0.51);
 
         this.buttons = new ArrayList<>();
 
-        this.plotPowerButton = new Button("Plot Power", this.canvas);
+        this.plotPowerButton = new ButtonLarge("Plot Power", this.canvas);
         this.plotPowerButton.setPosition(0.1, 0.5);
         this.buttons.add(this.plotPowerButton);
 
-        this.plotTorqueButton = new Button("Plot Torque", this.canvas);
+        this.plotTorqueButton = new ButtonLarge("Plot Torque", this.canvas);
         this.plotTorqueButton.setPosition(0.45, 0.5);
         this.buttons.add(this.plotTorqueButton);
 
-        this.recordButton = new Button("REC [R]", this.canvas);
+        this.recordButton = new ButtonLarge("REC [R]", this.canvas);
         this.recordButton.setTextColor(Color.RED);
         this.recordButton.setPosition(-0.1, -0.35);
         this.recordButton.mode = Button.ButtonMode.TOGGLE;
         this.buttons.add(this.recordButton);
 
-        this.clearPlotButton = new Button("Clear Plot [C]", this.canvas);
+        this.clearPlotButton = new ButtonLarge("Clear Plot [C]", this.canvas);
         this.clearPlotButton.setPosition(0.2, -0.35);
         this.clearPlotButton.setExecution(new Runnable() {
             @Override
@@ -87,7 +85,7 @@ public class WindowDashboard extends Window {
         });
         this.buttons.add(this.clearPlotButton);
 
-        this.csvButton = new Button("Save to CSV", this.canvas);
+        this.csvButton = new ButtonLarge("Save to CSV", this.canvas);
         this.csvButton.setPosition(0.7, -0.35);
         this.csvButton.setExecution(new Runnable() {
             @Override
@@ -96,26 +94,6 @@ public class WindowDashboard extends Window {
             }
         });
         this.buttons.add(this.csvButton);
-
-        this.valveUpButton = new Button("Valve UP", this.canvas);
-        this.valveUpButton.setPosition(0.65, -0.45);
-        this.valveUpButton.setExecution(new Runnable() {
-            @Override
-            public void run() {
-                arduino.serialWrite("coarse up");
-            }
-        });
-        this.buttons.add(valveUpButton);
-
-        this.valveDownButton = new Button("Valve DOWN", this.canvas);
-        this.valveDownButton.setPosition(0.65, -0.54);
-        this.valveUpButton.setExecution(new Runnable() {
-            @Override
-            public void run() {
-                arduino.serialWrite("coarse down");
-            }
-        });
-        this.buttons.add(valveDownButton);
 
         BufferedImage bg = null;
         try {
@@ -178,6 +156,8 @@ public class WindowDashboard extends Window {
         tach.draw(g, partialTick);
         plot.draw(g, partialTick);
         torqueMeter.draw(g, partialTick);
+        valveControl.draw(g, partialTick);
+        throttleControl.draw(g, partialTick);
 
         for(Button button : buttons) {
             button.draw(g, partialTick);
@@ -201,6 +181,9 @@ public class WindowDashboard extends Window {
                 button.testClickEvent(getMousePos(), mAction);
             }
 
+            this.valveControl.testClickEvent(getMousePos(), mAction);
+            this.throttleControl.testClickEvent(getMousePos(), mAction);
+
         }
 
         if(getKey(KeyEvent.VK_C)) {
@@ -223,7 +206,7 @@ public class WindowDashboard extends Window {
 
         this.plot.hold = !this.recordButton.engaged;
 
-        frame++;
+        frame += 10;
         double rpm = frame;
 
         tach.setRpm((int)rpm);
@@ -234,7 +217,7 @@ public class WindowDashboard extends Window {
                 .translate(new Vector3D(tach.posX, 0, 0));
 
 
-        plot.addPoint(Math.cos(rpm / 10) + 1.1, Math.sin(frame / 5) + 1.1, 1);
+        plot.addPoint(frame, Math.sqrt(frame / 10), 1);
         torqueMeter.setValue(torque / 25);
 
     }

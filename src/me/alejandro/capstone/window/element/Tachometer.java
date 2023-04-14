@@ -15,20 +15,22 @@ public class Tachometer implements Drawable {
 
     //TODO map RPM to dial position
 
-    private BufferedImage texture;
+    private static BufferedImage texture;
     private PolygonalModel dialModel;
     private int rpm;
 
     public double posX, posY;
 
-    public Tachometer() {
-
+    static {
         try {
-            this.texture = ImageIO.read(new File("res/tach.png"));
+            texture = ImageIO.read(new File("res/tach.png"));
         } catch (IOException e) {
             System.out.println("Could not load tachometer texture! Is it missing in the JAR?");
             e.printStackTrace();
         }
+    }
+
+    public Tachometer() {
 
         //defining vertices counter-clockwise
         Vector3D[] vertices = {
@@ -49,7 +51,7 @@ public class Tachometer implements Drawable {
 
     @Override
     public void draw(GraphicsWrapper g, double partialTick) {
-        g.drawImage(this.texture, posX, posY);
+        g.drawImage(texture, posX, posY);
         this.dialModel.draw(g, partialTick);
         g.setColor(Color.WHITE);
         g.getGraphics().drawString("RPM: " + this.rpm, 90, 330);

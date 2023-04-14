@@ -25,8 +25,8 @@ public class Plot implements Drawable {
 
     public boolean hold;
 
-    private BufferedImage borderTex;
-    private BufferedImage bg;
+    private static BufferedImage borderTex;
+    private static BufferedImage bg;
 
     private List<Vector3D> data; //assume these are non-negative. For future, a Tuple might be more appropriate
 
@@ -36,6 +36,16 @@ public class Plot implements Drawable {
     public double posX, posY;
 
     private Matrix4D plotTransformation; //used to draw lines and points
+
+    static {
+        try {
+            borderTex = ImageIO.read(new File("res/plot_border.png"));
+            bg = ImageIO.read(new File("res/plot_bg.png"));
+        } catch (IOException e) {
+            System.out.println("Could not load plot textures! Are they missing in the JAR?");
+            e.printStackTrace();
+        }
+    }
 
     public Plot() {
 
@@ -48,14 +58,6 @@ public class Plot implements Drawable {
 
         this.data = new CopyOnWriteArrayList<>();
 
-        try {
-            this.borderTex = ImageIO.read(new File("res/plot_border.png"));
-            this.bg = ImageIO.read(new File("res/plot_bg.png"));
-        } catch (IOException e) {
-            System.out.println("Could not load plot textures! Are they missing in the JAR?");
-            e.printStackTrace();
-        }
-
     }
 
     @Override
@@ -65,10 +67,10 @@ public class Plot implements Drawable {
         double boundX = 1.1 * MathPlus.getMax(this.data, MathPlus.Axis.X);
         double boundY = 1.1 * MathPlus.getMax(this.data, MathPlus.Axis.Y);
 
-        g.drawImage(this.bg, posX, posY); //draw background
+        g.drawImage(bg, posX, posY); //draw background
         this.drawLines(g, boundX, boundY);
         this.drawData(g, boundX, boundY);
-        g.drawImage(this.borderTex, posX, posY); //draw border
+        g.drawImage(borderTex, posX, posY); //draw border
 
         g.setColor(Color.WHITE);
         g.getGraphics().drawString("Torque (ft-lbs)", 210, 60);
@@ -81,8 +83,8 @@ public class Plot implements Drawable {
 
         g.setColor(this.gridColor);
 
-        double plotWidth = this.bg.getWidth() / (double) g.getWidth();
-        double plotHeight = (g.imgToCartesianY(0) - g.imgToCartesianY(this.bg.getHeight())) / 2;
+        double plotWidth = bg.getWidth() / (double) g.getWidth();
+        double plotHeight = (g.imgToCartesianY(0) - g.imgToCartesianY(bg.getHeight())) / 2;
 
         //draw horizontal lines
         {
@@ -148,12 +150,12 @@ public class Plot implements Drawable {
 
     //Used for mapping plot space onto screen space
     private double getScaleXTransform(GraphicsWrapper g) {
-        return 2 * this.bg.getWidth() / (double) g.getWidth();
+        return 2 * bg.getWidth() / (double) g.getWidth();
     }
 
     //Used for mapping plot space onto screen space
     private double getScaleYTransform(GraphicsWrapper g) {
-        return (g.imgToCartesianY(0) - g.imgToCartesianY(this.bg.getHeight()));
+        return (g.imgToCartesianY(0) - g.imgToCartesianY(bg.getHeight()));
     }
 
     public void addPoint(double x, double y1, double y2) {
