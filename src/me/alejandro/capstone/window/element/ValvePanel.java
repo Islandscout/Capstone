@@ -21,7 +21,7 @@ public class ValvePanel implements Drawable {
 
     private final double posX, posY;
 
-    private int valveValue;
+    public int valveValue;
 
     public ValvePanel(Canvas canvas, double posX, double posY) {
 

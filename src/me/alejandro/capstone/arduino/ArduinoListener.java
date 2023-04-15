@@ -72,7 +72,7 @@ public class ArduinoListener implements SerialPortPacketListener {
                     this.controller.onMessageReceive(this.lineSB.toString());
                     this.lineSB.setLength(0); //clear (avoids a "new")
 
-                } else {
+                } else if(element != 13) { // I don't know what this character is but I don't like it
                     this.lineSB.append((char)element);
                 }
 

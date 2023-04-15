@@ -1,7 +1,6 @@
 package me.alejandro.capstone.arduino;
 
 import arduino.Arduino;
-import me.alejandro.capstone.window.Window;
 import me.alejandro.capstone.window.WindowDashboard;
 
 public class ControllerWater extends Controller {
@@ -32,6 +31,10 @@ public class ControllerWater extends Controller {
 
     @Override
     public void onMessageReceive(String msg) {
-
+        try {
+            window.valvePanel.valveValue = Integer.parseInt(msg);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
     }
 }
