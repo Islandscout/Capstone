@@ -18,11 +18,11 @@ public class ControllerWater extends Controller {
     }
 
     public void coarseDown() {
-        arduino.serialWrite("1");
+        arduino.serialWrite("3");
     }
 
     public void fineDown() {
-        arduino.serialWrite("3");
+        arduino.serialWrite("1");
     }
 
     public void resetPosition() {

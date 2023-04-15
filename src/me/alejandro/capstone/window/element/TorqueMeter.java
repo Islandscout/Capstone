@@ -35,7 +35,7 @@ public class TorqueMeter implements Drawable {
         g.fillRect(this.bounds.getMin().x, this.bounds.getMin().y, xMax, this.bounds.getMax().y);
 
         //draw title
-        g.getGraphics().drawString("Torque: " + value + " N*m", g.cartesianToImgX(this.bounds.getMin().x), g.cartesianToImgY(this.bounds.getMax().y) - 4);
+        g.getGraphics().drawString("Torque: " + value + " ft-lbs", g.cartesianToImgX(this.bounds.getMin().x), g.cartesianToImgY(this.bounds.getMax().y) - 4);
 
     }
 
