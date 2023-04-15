@@ -16,8 +16,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Plot implements Drawable {
 
-    //TODO We need to draw a red power plot (and horizontal grid lines)
-
     private final int HORIZONTAL_LINES = 6;
     private final int VERTICAL_LINES = 10;
     private final double[] horizLinePos = new double[HORIZONTAL_LINES];
@@ -31,7 +29,9 @@ public class Plot implements Drawable {
     private List<Vector3D> data; //assume these are non-negative. For future, a Tuple might be more appropriate
 
 
-    private Color gridColor = new Color(25, 81, 87);
+    private Color torqueGridColor = new Color(25, 81, 87);
+    private Color powerGridColor = new Color(143, 31, 31);
+
 
     public double posX, posY;
 
@@ -65,7 +65,9 @@ public class Plot implements Drawable {
 
         //compute plot bounds
         double boundX = 1.1 * MathPlus.getMax(this.data, MathPlus.Axis.X);
-        double boundY = 1.1 * MathPlus.getMax(this.data, MathPlus.Axis.Y);
+        double boundTorqueY = 1.1 * MathPlus.getMax(this.data, MathPlus.Axis.Y);
+        double boundPowerY = 1.1 * MathPlus.getMax(this.data, MathPlus.Axis.Z);
+        double boundY = Math.max(boundTorqueY, boundPowerY);
 
         g.drawImage(bg, posX, posY); //draw background
         this.drawLines(g, boundX, boundY);
@@ -73,15 +75,15 @@ public class Plot implements Drawable {
         g.drawImage(borderTex, posX, posY); //draw border
 
         g.setColor(Color.WHITE);
-        g.getGraphics().drawString("Torque (ft-lbs)", 210, 60);
-        g.getGraphics().drawString("Power (hp)", 620, 60);
+        g.getGraphics().drawString("Torque (ft-lbs)", 210, 50);
+        g.getGraphics().drawString("Power (hp)", 620, 50);
         g.getGraphics().drawString("RPM", 430, 310);
 
     }
 
     private void drawLines(GraphicsWrapper g, double boundX, double boundY) {
 
-        g.setColor(this.gridColor);
+        g.setColor(this.torqueGridColor);
 
         double plotWidth = bg.getWidth() / (double) g.getWidth();
         double plotHeight = (g.imgToCartesianY(0) - g.imgToCartesianY(bg.getHeight())) / 2;
@@ -91,6 +93,7 @@ public class Plot implements Drawable {
             double xMin = (-plotWidth) + this.posX;
             double xMax = (plotWidth) + this.posX;
 
+            //torque minor grid lines
             for (int i = 0; i < horizLinePos.length; i++) {
                 double pos = horizLinePos[i];
 
@@ -105,7 +108,26 @@ public class Plot implements Drawable {
 
                 g.getGraphics().drawString("" + tickValue, g.cartesianToImgX(xMin) - 27, g.cartesianToImgY(y));
             }
+
+            //power minor grid lines
+            for (int i = 0; i < horizLinePos.length; i++) {
+                double pos = horizLinePos[i];
+
+                double value = boundY * (i + 1) / HORIZONTAL_LINES;
+                int tickValue = (int) value;
+
+                double y = (tickValue / value) * pos - 0.5;
+                y *= 2 * plotHeight;
+                y += this.posY;
+
+                g.setColor(this.powerGridColor);
+                g.drawLine(xMin, y, xMax, y);
+
+                g.getGraphics().drawString("" + tickValue, g.cartesianToImgX(xMin) + 355, g.cartesianToImgY(y));
+            }
         }
+
+        g.setColor(this.torqueGridColor);
 
         //draw vertical lines
         {
@@ -130,22 +152,31 @@ public class Plot implements Drawable {
     }
 
     public void drawData(GraphicsWrapper g, double boundX, double boundY) {
-        g.setColor(Color.cyan);
+
+        //draw torque
+
         for(int i = 0; i < this.data.size(); i ++) {
             double x = this.data.get(i).x / boundX;
-            double y = this.data.get(i).y / boundY;
+            double torqueY = this.data.get(i).y / boundY;
+            double powerY = this.data.get(i).z / boundY;
 
             double scaleXTransform = getScaleXTransform(g);
             double scaleYTransform = getScaleYTransform(g);
 
             x *= scaleXTransform;
-            y *= scaleYTransform;
+            torqueY *= scaleYTransform;
+            powerY *= scaleYTransform;
 
             x += this.posX - scaleXTransform / 2;
-            y += this.posY - scaleYTransform / 2;
+            torqueY += this.posY - scaleYTransform / 2;
+            powerY += this.posY - scaleYTransform / 2;
 
-            g.drawPoint(x, y);
+            g.setColor(Color.CYAN);
+            g.drawPoint(x, torqueY);
+            g.setColor(Color.RED);
+            g.drawPoint(x, powerY);
         }
+
     }
 
     //Used for mapping plot space onto screen space

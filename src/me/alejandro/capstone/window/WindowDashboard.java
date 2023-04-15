@@ -32,8 +32,8 @@ public class WindowDashboard extends Window {
     public ControllerTorque controllerTorque;
 
     private final List<Button> buttons;
-    private final Button plotTorqueButton;
-    private final Button plotPowerButton;
+    //private final Button plotTorqueButton;
+    //private final Button plotPowerButton;
     private final Button recordButton;
     private final Button clearPlotButton;
     private final Button csvButton;
@@ -60,6 +60,7 @@ public class WindowDashboard extends Window {
 
         this.buttons = new ArrayList<>();
 
+        /*
         this.plotPowerButton = new ButtonLarge("Plot Power", this.canvas);
         this.plotPowerButton.setPosition(0.1, 0.5);
         this.buttons.add(this.plotPowerButton);
@@ -67,6 +68,7 @@ public class WindowDashboard extends Window {
         this.plotTorqueButton = new ButtonLarge("Plot Torque", this.canvas);
         this.plotTorqueButton.setPosition(0.45, 0.5);
         this.buttons.add(this.plotTorqueButton);
+         */
 
         this.recordButton = new ButtonLarge("REC [R]", this.canvas);
         this.recordButton.setTextColor(Color.RED);
@@ -144,6 +146,8 @@ public class WindowDashboard extends Window {
 
     }
 
+    int frame;
+
     @Override
     public void tick() {
 
@@ -187,8 +191,13 @@ public class WindowDashboard extends Window {
                 .rotate(new Vector3D(0, 0, 1), tachAngle)
                 .translate(new Vector3D(tach.posX, 0, 0));
 
+        double power = rpm * torque / 5252; // in horsepower
 
-        //TODO plot.addPoint(frame, Math.sqrt(frame / 10), 1);
+        frame += 40;
+
+        //plot.addPoint(rpm, torque, power);
+        plot.addPoint(frame, Math.sqrt(5 * frame), frame * Math.sqrt(5 * frame) / 5252);
+
         torqueMeter.setValue(this.torque);
 
     }

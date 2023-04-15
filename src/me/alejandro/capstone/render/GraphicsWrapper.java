@@ -94,7 +94,7 @@ public class GraphicsWrapper {
     }
 
     public void drawPoint(double x, double y) {
-        this.graphics.fillRect(cartesianToImgX(x), cartesianToImgY(y), 3, 3);
+        this.graphics.fillRect(cartesianToImgX(x) - 1, cartesianToImgY(y) - 1, 3, 3);
     }
 
     public Graphics getGraphics() {
