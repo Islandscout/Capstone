@@ -13,8 +13,6 @@ import java.io.IOException;
 
 public class Tachometer implements Drawable {
 
-    //TODO map RPM to dial position
-
     private static BufferedImage texture;
     private PolygonalModel dialModel;
     private int rpm;

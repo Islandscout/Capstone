@@ -13,7 +13,6 @@ public class ControllerTorque extends Controller {
     @Override
     public void onMessageReceive(String msg) {
         try {
-            System.out.println(msg);
             window.updateTorque(Double.parseDouble(msg));
         } catch (NumberFormatException exception) {
             exception.printStackTrace();

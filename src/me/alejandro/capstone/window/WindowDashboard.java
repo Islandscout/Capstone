@@ -56,7 +56,7 @@ public class WindowDashboard extends Window {
         this.torqueMeter.transform(0.1, -0.6, -0.5);
 
         this.valvePanel = new ValvePanel(this.canvas, 0.5, -0.51);
-        this.throttlePanel = new ThrottlePanel(this.canvas, 0, -0.51);
+        this.throttlePanel = new ThrottlePanel(this.canvas, -0.7, 0.51);
 
         this.buttons = new ArrayList<>();
 
@@ -102,7 +102,6 @@ public class WindowDashboard extends Window {
         }
 
         this.setBackground(bg);
-        //TODO use a "check engine light" as app icon
         this.setTitle("Engine Dynamometer Interface");
     }
 
@@ -145,8 +144,6 @@ public class WindowDashboard extends Window {
 
     }
 
-    double frame;
-
     @Override
     public void tick() {
 
@@ -182,19 +179,17 @@ public class WindowDashboard extends Window {
 
         this.plot.hold = !this.recordButton.engaged;
 
-        frame += 10;
-        double rpm = frame;
-
+        double tachAngle = 2.35 - (4.7 * (this.rpm / 11000)); //magic numbers
         tach.setRpm((int)rpm);
         tach.getModel().getTransformation()
                 .setIdentity()
                 .scale(0.32)
-                .rotate(new Vector3D(0, 0, 1), rpm)
+                .rotate(new Vector3D(0, 0, 1), tachAngle)
                 .translate(new Vector3D(tach.posX, 0, 0));
 
 
-        plot.addPoint(frame, Math.sqrt(frame / 10), 1);
-        torqueMeter.setValue(torque / 25);
+        //TODO plot.addPoint(frame, Math.sqrt(frame / 10), 1);
+        torqueMeter.setValue(this.torque);
 
     }
 
