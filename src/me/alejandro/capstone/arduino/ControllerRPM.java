@@ -7,8 +7,8 @@ import me.alejandro.capstone.window.WindowDashboard;
 
 public class ControllerRPM extends Controller {
 
-    public ControllerRPM(Arduino arduino, Window window) {
-        super(arduino, window);
+    public ControllerRPM(Arduino arduino, WindowDashboard window, ArduinoListener listener) {
+        super(arduino, window, listener);
     }
 
     @Override

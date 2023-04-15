@@ -1,5 +1,6 @@
 package me.alejandro.capstone.window.element;
 
+import me.alejandro.capstone.arduino.ControllerWater;
 import me.alejandro.capstone.input.MouseAction;
 import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
@@ -9,19 +10,20 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ThrottleControl implements Drawable {
+public class ValvePanel implements Drawable {
 
-    public static final int THROTTLE_MAX_VALUE = 5600;
+    public static final int VALVE_MAX_VALUE = 5600;
 
+    private ControllerWater controller;
     private final Canvas canvas;
     private final List<Button> buttons;
     private final Button valveCoarseUp, valveCoarseDown, valveFineUp, valveFineDown;
 
     private final double posX, posY;
 
-    private int throttlePos;
+    private int valveValue;
 
-    public ThrottleControl(Canvas canvas, double posX, double posY) {
+    public ValvePanel(Canvas canvas, double posX, double posY) {
 
         this.posX = posX;
         this.posY = posY;
@@ -31,18 +33,42 @@ public class ThrottleControl implements Drawable {
 
         this.valveCoarseUp = new ButtonUp(this.canvas);
         this.valveCoarseUp.setPosition(posX, posY + 0.08);
+        this.valveCoarseUp.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                controller.coarseUp();
+            }
+        });
         this.buttons.add(valveCoarseUp);
 
         this.valveFineUp = new ButtonUp(this.canvas);
         this.valveFineUp.setPosition(posX, posY + 0.03);
+        this.valveFineUp.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                controller.fineUp();
+            }
+        });
         this.buttons.add(valveFineUp);
 
         this.valveCoarseDown = new ButtonDown(this.canvas);
         this.valveCoarseDown.setPosition(posX, posY - 0.03);
+        this.valveCoarseDown.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                controller.coarseDown();
+            }
+        });
         this.buttons.add(valveCoarseDown);
 
         this.valveFineDown = new ButtonDown(this.canvas);
         this.valveFineDown.setPosition(posX, posY - 0.08);
+        this.valveFineDown.setExecution(new Runnable() {
+            @Override
+            public void run() {
+                controller.fineDown();
+            }
+        });
         this.buttons.add(valveFineDown);
 
     }
@@ -54,8 +80,8 @@ public class ThrottleControl implements Drawable {
         int pixelPosY = g.cartesianToImgY(this.posY);
 
         g.setColor(Color.CYAN);
-        g.getGraphics().drawString("Throttle", pixelPosX + 35,  pixelPosY - 5);
-        g.getGraphics().drawString("Position: " + Math.round(this.throttlePos * 100D / THROTTLE_MAX_VALUE) + "%", pixelPosX + 35, pixelPosY + 10);
+        g.getGraphics().drawString("Water Valve", pixelPosX + 35,  pixelPosY - 5);
+        g.getGraphics().drawString("Position: " + Math.round(this.valveValue * 100D / VALVE_MAX_VALUE) + "%", pixelPosX + 35, pixelPosY + 10);
 
         for(Button button : buttons) {
             button.draw(g, partialTick);
@@ -67,5 +93,13 @@ public class ThrottleControl implements Drawable {
         for(Button button : buttons) {
             button.testClickEvent(pos, mAction);
         }
+    }
+
+    public ControllerWater getController() {
+        return controller;
+    }
+
+    public void setController(ControllerWater controller) {
+        this.controller = controller;
     }
 }

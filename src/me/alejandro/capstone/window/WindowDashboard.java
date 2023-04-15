@@ -1,9 +1,7 @@
 package me.alejandro.capstone.window;
 
 import com.fazecast.jSerialComm.SerialPort;
-import me.alejandro.capstone.arduino.ArduinoListener;
-import me.alejandro.capstone.arduino.ControllerRPM;
-import me.alejandro.capstone.arduino.ControllerTorque;
+import me.alejandro.capstone.arduino.*;
 import me.alejandro.capstone.input.MouseAction;
 import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.Vector3D;
@@ -22,15 +20,15 @@ import java.util.StringJoiner;
 
 public class WindowDashboard extends Window {
 
-    private ControllerRPM arduinoSpeed;
-    private ControllerTorque arduinoTorque;
-
     //Window elements go here
     private final Tachometer tach;
     private final Plot plot;
     private final TorqueMeter torqueMeter;
-    private final ValveControl valveControl;
-    private final ThrottleControl throttleControl;
+    public ValvePanel valvePanel;
+    public ThrottlePanel throttlePanel;
+
+    public ControllerRPM controllerRPM;
+    public ControllerTorque controllerTorque;
 
     private final List<Button> buttons;
     private final Button plotTorqueButton;
@@ -56,8 +54,8 @@ public class WindowDashboard extends Window {
         this.torqueMeter = new TorqueMeter(7);
         this.torqueMeter.transform(0.1, -0.6, -0.5);
 
-        this.valveControl = new ValveControl(this.canvas, 0.5, -0.51);
-        this.throttleControl = new ThrottleControl(this.canvas, 0, -0.51);
+        this.valvePanel = new ValvePanel(this.canvas, 0.5, -0.51);
+        this.throttlePanel = new ThrottlePanel(this.canvas, 0, -0.51);
 
         this.buttons = new ArrayList<>();
 
@@ -137,8 +135,8 @@ public class WindowDashboard extends Window {
         tach.draw(g, partialTick);
         plot.draw(g, partialTick);
         torqueMeter.draw(g, partialTick);
-        valveControl.draw(g, partialTick);
-        throttleControl.draw(g, partialTick);
+        valvePanel.draw(g, partialTick);
+        throttlePanel.draw(g, partialTick);
 
         for(Button button : buttons) {
             button.draw(g, partialTick);
@@ -158,8 +156,8 @@ public class WindowDashboard extends Window {
                 button.testClickEvent(getMousePos(), mAction);
             }
 
-            this.valveControl.testClickEvent(getMousePos(), mAction);
-            this.throttleControl.testClickEvent(getMousePos(), mAction);
+            this.valvePanel.testClickEvent(getMousePos(), mAction);
+            this.throttlePanel.testClickEvent(getMousePos(), mAction);
 
         }
 

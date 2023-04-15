@@ -1,31 +1,30 @@
 package me.alejandro.capstone.window.element;
 
+import me.alejandro.capstone.arduino.ControllerThrottle;
+import me.alejandro.capstone.arduino.ControllerWater;
 import me.alejandro.capstone.input.MouseAction;
 import me.alejandro.capstone.render.Drawable;
 import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.Point2D;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValveControl implements Drawable {
+public class ThrottlePanel implements Drawable {
 
-    public static final int VALVE_MAX_VALUE = 5600;
+    public static final int THROTTLE_MAX_VALUE = 5600;
 
+    private ControllerThrottle controller;
     private final Canvas canvas;
     private final List<Button> buttons;
     private final Button valveCoarseUp, valveCoarseDown, valveFineUp, valveFineDown;
 
     private final double posX, posY;
 
-    private int valveValue;
+    private int throttlePos;
 
-    public ValveControl(Canvas canvas, double posX, double posY) {
+    public ThrottlePanel(Canvas canvas, double posX, double posY) {
 
         this.posX = posX;
         this.posY = posY;
@@ -58,8 +57,8 @@ public class ValveControl implements Drawable {
         int pixelPosY = g.cartesianToImgY(this.posY);
 
         g.setColor(Color.CYAN);
-        g.getGraphics().drawString("Water Valve", pixelPosX + 35,  pixelPosY - 5);
-        g.getGraphics().drawString("Position: " + Math.round(this.valveValue * 100D / VALVE_MAX_VALUE) + "%", pixelPosX + 35, pixelPosY + 10);
+        g.getGraphics().drawString("Throttle", pixelPosX + 35,  pixelPosY - 5);
+        g.getGraphics().drawString("Position: " + Math.round(this.throttlePos * 100D / THROTTLE_MAX_VALUE) + "%", pixelPosX + 35, pixelPosY + 10);
 
         for(Button button : buttons) {
             button.draw(g, partialTick);
@@ -71,5 +70,13 @@ public class ValveControl implements Drawable {
         for(Button button : buttons) {
             button.testClickEvent(pos, mAction);
         }
+    }
+
+    public ControllerThrottle getController() {
+        return controller;
+    }
+
+    public void setController(ControllerThrottle controller) {
+        this.controller = controller;
     }
 }

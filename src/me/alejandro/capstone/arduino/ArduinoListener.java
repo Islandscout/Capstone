@@ -4,7 +4,7 @@ import arduino.Arduino;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortPacketListener;
-import me.alejandro.capstone.window.Window;
+import me.alejandro.capstone.window.WindowDashboard;
 
 public class ArduinoListener implements SerialPortPacketListener {
 
@@ -13,26 +13,32 @@ public class ArduinoListener implements SerialPortPacketListener {
     private boolean syncd;
     private final StringBuilder lineSB;
 
-    public ArduinoListener(String portName, Window window) {
+    public ArduinoListener(String portName, WindowDashboard window) {
 
         this.arduino = new Arduino(portName, 9600);
 
+        ArduinoListener selfListener = this;
+
         //dummy controller
-        this.controller = new Controller(arduino, window) {
+        this.controller = new Controller(arduino, window, this) {
             @Override
             public void onMessageReceive(String msg) {
                 if(msg.charAt(0) == 'W') {
                     System.out.println("Detected water valve arduino");
-                    controller = new ControllerWater(arduino, window);
+                    window.valvePanel.setController(new ControllerWater(arduino, window, selfListener));
+                    controller = window.valvePanel.getController();
                 } else if(msg.charAt(0) == 'R') {
                     System.out.println("Detected RPM sensor arduino");
-                    controller = new ControllerRPM(arduino, window);
+                    window.controllerRPM = new ControllerRPM(arduino, window, selfListener);
+                    controller = window.controllerRPM;
                 } else if(msg.charAt(0) == 'F') {
                     System.out.println("Detected torque sensor arduino");
-                    controller = new ControllerTorque(arduino, window);
+                    window.controllerTorque = new ControllerTorque(arduino, window, selfListener);
+                    controller = window.controllerTorque;
                 } else if(msg.charAt(0) == 'T') {
                     System.out.println("Detected throttle position arduino");
-                    controller = new ControllerThrottle(arduino, window);
+                    window.throttlePanel.setController(new ControllerThrottle(arduino, window, selfListener));
+                    controller = window.throttlePanel.getController();
                 }
             }
         };
