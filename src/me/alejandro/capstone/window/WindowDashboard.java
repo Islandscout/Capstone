@@ -1,9 +1,9 @@
 package me.alejandro.capstone.window;
 
-import arduino.Arduino;
 import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortEvent;
-import com.fazecast.jSerialComm.SerialPortPacketListener;
+import me.alejandro.capstone.arduino.ArduinoListener;
+import me.alejandro.capstone.arduino.ControllerRPM;
+import me.alejandro.capstone.arduino.ControllerTorque;
 import me.alejandro.capstone.input.MouseAction;
 import me.alejandro.capstone.render.GraphicsWrapper;
 import me.alejandro.capstone.util.Vector3D;
@@ -22,8 +22,8 @@ import java.util.StringJoiner;
 
 public class WindowDashboard extends Window {
 
-    private Arduino arduino;
-    private ArduinoListener listener;
+    private ControllerRPM arduinoSpeed;
+    private ControllerTorque arduinoTorque;
 
     //Window elements go here
     private final Tachometer tach;
@@ -107,47 +107,27 @@ public class WindowDashboard extends Window {
         this.setTitle("Engine Dynamometer Interface");
     }
 
+
     public void initArduino() {
 
         System.out.println("Detecting serial devices...");
 
         SerialPort[] ports = SerialPort.getCommPorts();
 
-        /* //TODO Allow user to choose a port
-
-        String[] petStrings = { "Bird", "Cat", "Dog", "Rabbit", "Pig" };
-
-        JFrame frame = new JFrame("ComboBoxDemo2");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        //Legit skidded from Oracle docs
-        JComboBox petList = new JComboBox(petStrings);
-        petList.setSelectedIndex(4);
-        petList.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JComboBox cb = (JComboBox)e.getSource();
-                String petName = (String)cb.getSelectedItem();
-                cb.setSelectedItem(cb.getSelectedIndex());
-            }
-        });
-         */
-
         for(SerialPort port : ports) {
+
             System.out.println("NAME: " + port.getSystemPortName() + ", BAUD RATE: " + port.getBaudRate());
-            //this.arduino = new Arduino(port.getSystemPortName(), port.getBaudRate());
-            //this.arduino.openConnection();
+
+            ArduinoListener listener = new ArduinoListener(port.getSystemPortName(), this);
+            listener.getArduino().openConnection();
+            listener.getArduino().getSerialPort().addDataListener(listener);
+
         }
-        System.out.println(ports.length + " serial devices detected");
+        System.out.println(ports.length + " serial device(s) detected");
         System.out.println();
 
         if(ports.length == 0) {
             System.out.println("No ports found, try again?");
-        } else {
-            //Set up event listener for Arduino. This is just like Bukkit.
-            // Of course we need to sync these threads up.
-            this.listener = new ArduinoListener();
-            this.arduino.getSerialPort().addDataListener(this.listener);
         }
     }
 
@@ -163,10 +143,6 @@ public class WindowDashboard extends Window {
         for(Button button : buttons) {
             button.draw(g, partialTick);
         }
-
-        //g.setColor(Color.WHITE);
-        //g.getGraphics().drawString("DAQ Arduino connected on port: ", 0, 15);
-        //g.getGraphics().drawString("Controller Arduino connected on port: ", 0, 30);
 
     }
 
@@ -225,14 +201,18 @@ public class WindowDashboard extends Window {
 
     @Override
     protected void onClose() {
-        if(this.arduino != null && this.arduino.getSerialPort() != null) {
+        /*if(this.arduino != null && this.arduino.getSerialPort() != null) {
             this.arduino.getSerialPort().removeDataListener();
             this.arduino.closeConnection();
-        }
+        }*/
     }
 
-    private void updateTorque(double value) {
+    public void updateTorque(double value) {
         this.torque = value;
+    }
+
+    public void updateRPM(double value) {
+        this.rpm = value;
     }
 
     private void exportCSV() {
@@ -276,55 +256,5 @@ public class WindowDashboard extends Window {
             }
         });
         saveThread.start();
-    }
-
-    class ArduinoListener implements SerialPortPacketListener {
-
-        private StringBuilder lineSB;
-        private boolean syncd;
-
-        ArduinoListener() {
-            this.lineSB = new StringBuilder();
-        }
-
-        @Override
-        public int getPacketSize() {
-            return 1; //one-byte packets should be good for our application
-        }
-
-        @Override
-        public int getListeningEvents() {
-            return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
-        }
-
-        @Override
-        public void serialEvent(SerialPortEvent e) {
-            //TODO we grab the RPM and torque here.
-            // Look for end-of-line character (\n) to mark the end of the message
-            //TODO hmm, maybe we want to clear the buffer before reading in our first message?
-            //Don't use Arduino#serialRead(). It's not sync'd.
-
-            for(byte element : e.getReceivedData()) {
-
-                boolean endl = (char) element == 10;
-
-                if(syncd) {
-
-                    if(endl) {
-                        try {
-                            updateTorque(Double.parseDouble(this.lineSB.toString()));
-                        } catch (NumberFormatException exception) {
-                            exception.printStackTrace();
-                        }
-                        this.lineSB.setLength(0); //clear (avoids a "new")
-                    } else {
-                        this.lineSB.append((char)element);
-                    }
-
-                } else if(endl) {
-                    this.syncd = true;
-                }
-            }
-        }
     }
 }
