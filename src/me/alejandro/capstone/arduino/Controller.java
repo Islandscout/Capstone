@@ -21,4 +21,8 @@ public abstract class Controller {
     protected void sendMessage(String msg) {
         arduino.serialWrite(msg);
     }
+
+    public Arduino getArduino() {
+        return arduino;
+    }
 }

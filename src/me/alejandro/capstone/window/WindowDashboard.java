@@ -24,9 +24,10 @@ public class WindowDashboard extends Window {
     private final Tachometer tach;
     private final Plot plot;
     private final TorqueMeter torqueMeter;
+
+    //Arduino stuff here
     public ValvePanel valvePanel;
     public ThrottlePanel throttlePanel;
-
     public ControllerRPM controllerRPM;
     public ControllerTorque controllerTorque;
 
@@ -199,10 +200,17 @@ public class WindowDashboard extends Window {
 
     @Override
     protected void onClose() {
-        /*if(this.arduino != null && this.arduino.getSerialPort() != null) {
-            this.arduino.getSerialPort().removeDataListener();
-            this.arduino.closeConnection();
-        }*/
+        this.valvePanel.getController().getArduino().getSerialPort().removeDataListener();
+        this.valvePanel.getController().getArduino().closeConnection();
+
+        this.throttlePanel.getController().getArduino().getSerialPort().removeDataListener();
+        this.throttlePanel.getController().getArduino().closeConnection();
+
+        this.controllerTorque.getArduino().getSerialPort().removeDataListener();
+        this.controllerTorque.getArduino().closeConnection();
+
+        this.controllerRPM.getArduino().getSerialPort().removeDataListener();
+        this.controllerRPM.getArduino().closeConnection();
     }
 
     public void updateTorque(double value) {
