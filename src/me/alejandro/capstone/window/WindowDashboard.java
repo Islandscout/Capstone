@@ -146,8 +146,6 @@ public class WindowDashboard extends Window {
 
     }
 
-    int frame;
-
     @Override
     public void tick() {
 
@@ -193,10 +191,8 @@ public class WindowDashboard extends Window {
 
         double power = rpm * torque / 5252; // in horsepower
 
-        frame += 40;
-
-        //plot.addPoint(rpm, torque, power);
-        plot.addPoint(frame, Math.sqrt(5 * frame), frame * Math.sqrt(5 * frame) / 5252);
+        plot.addPoint(rpm, torque, power);
+        //plot.addPoint(frame, Math.sqrt(5 * frame), frame * Math.sqrt(5 * frame) / 5252);
 
         torqueMeter.setValue(this.torque);
 
@@ -204,17 +200,26 @@ public class WindowDashboard extends Window {
 
     @Override
     protected void onClose() {
-        this.valvePanel.getController().getArduino().getSerialPort().removeDataListener();
-        this.valvePanel.getController().getArduino().closeConnection();
+        //Please excuse this nightmare, I'm on a time crunch
+        if(this.valvePanel.getController() != null && this.valvePanel.getController().getArduino() != null) {
+            this.valvePanel.getController().getArduino().getSerialPort().removeDataListener();
+            this.valvePanel.getController().getArduino().closeConnection();
+        }
 
-        this.throttlePanel.getController().getArduino().getSerialPort().removeDataListener();
-        this.throttlePanel.getController().getArduino().closeConnection();
+        if(this.throttlePanel.getController() != null && this.throttlePanel.getController().getArduino() != null) {
+            this.throttlePanel.getController().getArduino().getSerialPort().removeDataListener();
+            this.throttlePanel.getController().getArduino().closeConnection();
+        }
 
-        this.controllerTorque.getArduino().getSerialPort().removeDataListener();
-        this.controllerTorque.getArduino().closeConnection();
+        if(this.controllerTorque != null && this.controllerTorque.getArduino() != null) {
+            this.controllerTorque.getArduino().getSerialPort().removeDataListener();
+            this.controllerTorque.getArduino().closeConnection();
+        }
 
-        this.controllerRPM.getArduino().getSerialPort().removeDataListener();
-        this.controllerRPM.getArduino().closeConnection();
+        if(this.controllerRPM != null && this.controllerRPM.getArduino() != null) {
+            this.controllerRPM.getArduino().getSerialPort().removeDataListener();
+            this.controllerRPM.getArduino().closeConnection();
+        }
     }
 
     public void updateTorque(double value) {

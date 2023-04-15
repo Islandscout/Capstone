@@ -8,6 +8,9 @@ import me.alejandro.capstone.window.WindowDashboard;
 
 public class ArduinoListener implements SerialPortPacketListener {
 
+    //It's a miracle how I got this design to work
+    //No time to improve this
+
     private Arduino arduino;
     private Controller controller;
     private boolean syncd;
