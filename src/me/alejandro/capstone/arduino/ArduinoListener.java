@@ -26,6 +26,9 @@ public class ArduinoListener implements SerialPortPacketListener {
         this.controller = new Controller(arduino, window, this) {
             @Override
             public void onMessageReceive(String msg) {
+                if(msg.length() == 0) { //band-aid
+                    return;
+                }
                 if(msg.charAt(0) == 'W') {
                     System.out.println("Detected water valve arduino");
                     window.valvePanel.setController(new ControllerWater(arduino, window, selfListener));

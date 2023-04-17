@@ -16,10 +16,10 @@ public class ControllerRPM extends Controller {
             long microElapsed = Long.parseLong(msg);
 
             //This should fire 12 times per revolution
-            //double minPerRev = 12 * microElapsed * 60E-6;
-
-            double minPerRev = 12 * microElapsed * (1E-6 / 60);
-            window.updateRPM(1 / minPerRev);
+            //double minPerRev = /*12*/ 4 * microElapsed * 60E-6; //i think this is right
+            double minPerRev = 4 * microElapsed * (1E-6 / 60); //i think this is wrong
+            window.updateRPM(33 / minPerRev);
+            //System.out.println("PULSE! That took " + microElapsed / 1E6 + " sec, so " + 4 * microElapsed / 1E6 + " sec per rev");
 
         } catch (NumberFormatException exception) {
             exception.printStackTrace();

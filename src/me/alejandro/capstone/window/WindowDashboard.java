@@ -119,8 +119,12 @@ public class WindowDashboard extends Window {
             System.out.println("NAME: " + port.getSystemPortName() + ", BAUD RATE: " + port.getBaudRate());
 
             ArduinoListener listener = new ArduinoListener(port.getSystemPortName(), this);
-            listener.getArduino().openConnection();
-            listener.getArduino().getSerialPort().addDataListener(listener);
+            boolean pass = listener.getArduino().openConnection();
+            if(!pass) {
+                listener.getArduino().closeConnection();
+            } else {
+                listener.getArduino().getSerialPort().addDataListener(listener);
+            }
 
         }
         System.out.println(ports.length + " serial device(s) detected");
@@ -142,6 +146,10 @@ public class WindowDashboard extends Window {
 
         for(Button button : buttons) {
             button.draw(g, partialTick);
+        }
+
+        if(this.frameIsTick) {
+            this.updateRPM(Math.max(this.rpm - 30, 0));
         }
 
     }

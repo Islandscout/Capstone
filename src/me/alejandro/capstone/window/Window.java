@@ -21,6 +21,7 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
     private final int fpsCap = 60;
     private final int tps = 20;
     private final long minDrawTime;
+    protected boolean frameIsTick; //really stupid but no time
 
     private boolean closeRequested;
     protected boolean mouseDown, wasMouseDown;
@@ -83,6 +84,7 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
                     //usually in video games we poll inputs here
 
                     //ticking
+                    frameIsTick = false;
                     long sinceLastTick = Math.min(System.nanoTime() - lastTickStartTime, 1000000000); //cap max catchup time to 1 second
                     if(sinceLastTick > tickIntervalTime) {
 
@@ -99,6 +101,7 @@ public abstract class Window implements Drawable, KeyListener, MouseListener {
                             mousePos.x = g.imgToCartesianX(mouseScreenPos.x - canvas.getLocationOnScreen().x);
                             mousePos.y = g.imgToCartesianY(mouseScreenPos.y - canvas.getLocationOnScreen().y);
 
+                            frameIsTick = true;
                             tick();
 
                             wasMouseDown = mouseDown;
